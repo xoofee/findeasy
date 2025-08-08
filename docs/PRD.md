@@ -173,4 +173,4 @@ Should we use K8s and docker-style deployment? If should, when to use
 
 give all requirements above, make an full progressive solution that is good enough for now and flexible enough to scale. Make the folder structure for me for all relevant components/subsystem/modules/deploy roadmap orscripts/.... You should act like an architect or CTO for me. Because I am a freshman.
 
-
+also give detailed arch and folder structure of the flutter findeasy app 

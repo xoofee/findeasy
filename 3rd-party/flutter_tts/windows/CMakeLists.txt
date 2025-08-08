@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.14)
 set(PROJECT_NAME "flutter_tts")
 project(${PROJECT_NAME} LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+add_compile_options(/await)
+
 ################ NuGet intall begin ################
 find_program(NUGET_EXE NAMES nuget)
 if(NOT NUGET_EXE)
