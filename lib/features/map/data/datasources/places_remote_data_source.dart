@@ -44,29 +44,88 @@ class PlacesRemoteDataSource implements PlacesDataSource{
 
   Future<String> downloadMap(int placeId) async {
     try {
-      final (url, version, updatedAt) = await getPlaceMapInfo(placeId);
-      
       Directory docDir = await getApplicationDocumentsDirectory();
-      String savePath = path.join(docDir.path, AppConstants.mapStorageFolder, '$placeId${AppConstants.mapExtension}');
+      Directory mapDir = Directory(path.join(docDir.path, AppConstants.mapStorageFolder));
+      
+      // Ensure the maps directory exists
+      if (!await mapDir.exists()) {
+        await mapDir.create(recursive: true);
+      }
+      
+      String mapPath = path.join(mapDir.path, '$placeId${AppConstants.mapExtension}');
+      String mapInfoPath = path.join(mapDir.path, '$placeId${AppConstants.mapInfoExtension}');
 
-      await _dio.download(url, savePath);
+      // Check cache with proper async operations
+      if (await File(mapPath).exists()) {
+        try {
+          // Load version info from file
+          if (await File(mapInfoPath).exists()) {
+            String mapInfoContent = await File(mapInfoPath).readAsString();
+            Map<String, dynamic> mapInfo = json.decode(mapInfoContent);
+            final int localVersion = mapInfo['version'] as int;
+            final (serverVersion, _) = await getPlaceMapInfo(placeId);
 
-      return savePath;
+            if (localVersion == serverVersion) {
+              return mapPath;
+            }
+          }
+        } catch (e) {
+          // If map info is corrupted, continue with download
+          print('Warning: Corrupted map info for place $placeId, re-downloading: $e');
+        }
+      }
 
-      // TODO: decrypt map file in the future is encrypted on server.
+      final url = await getPlaceMapUrl(placeId);
+      
+      // Download the map file
+      await _dio.download(url, mapPath);
+      
+      // Verify the downloaded file exists and has content
+      File downloadedFile = File(mapPath);
+      if (!await downloadedFile.exists() || await downloadedFile.length() == 0) {
+        throw PlacesException("Downloaded map file is empty or missing for place $placeId");
+      }
 
+      // Save map info for future cache checks
+      try {
+        final (serverVersion, updatedAt) = await getPlaceMapInfo(placeId);
+        Map<String, dynamic> mapInfo = {
+          'version': serverVersion,
+          'updated_at': updatedAt.toIso8601String(),
+          'downloaded_at': DateTime.now().toIso8601String(),
+          'file_size': await downloadedFile.length(),
+        };
+        await File(mapInfoPath).writeAsString(json.encode(mapInfo));
+      } catch (e) {
+        print('Warning: Could not save map info for place $placeId: $e');
+        // Don't fail the download if we can't save metadata
+      }
+
+      return mapPath;
+
+      // TODO: decrypt map file in the future if encrypted on server.
     } catch (e) {
       throw PlacesException("Failed to download map $placeId: $e");
     }
   }
 
-  Future<(String, int, DateTime)> getPlaceMapInfo(int placeId) async {
+  Future<(int, DateTime)> getPlaceMapInfo(int placeId) async {
     try {
       final response = await _dio.get('$_baseUrl/places/$placeId/map_info');
 
-      return (response.data['url'] as String, response.data['version'] as int, response.data['updated_at'] as DateTime);
+      return (response.data['version'] as int, response.data['updated_at'] as DateTime);
     } catch (e) {
       throw PlacesException("Failed to load place map info $placeId: $e");
+    }
+  }
+
+  Future<String> getPlaceMapUrl(int placeId) async {
+    try {
+      final response = await _dio.get('$_baseUrl/places/$placeId/map_url');
+
+      return response.data['url'] as String;
+    } catch (e) {
+      throw PlacesException("Failed to load place map url $placeId: $e");
     }
   }
 
