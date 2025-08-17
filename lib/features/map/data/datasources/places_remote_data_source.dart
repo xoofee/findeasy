@@ -44,69 +44,28 @@ class PlacesRemoteDataSource implements PlacesDataSource{
 
   Future<String> downloadMap(int placeId) async {
     try {
-      Directory docDir = await getApplicationDocumentsDirectory();
-      Directory mapDir = Directory(path.join(docDir.path, AppConstants.mapStorageFolder));
-      
-      // Ensure the maps directory exists
-      if (!await mapDir.exists()) {
-        await mapDir.create(recursive: true);
-      }
-      
-      String mapPath = path.join(mapDir.path, '$placeId${AppConstants.mapExtension}');
-      String mapInfoPath = path.join(mapDir.path, '$placeId${AppConstants.mapInfoExtension}');
-
-      // Check cache with proper async operations
-      if (await File(mapPath).exists()) {
-        try {
-          // Load version info from file
-          if (await File(mapInfoPath).exists()) {
-            String mapInfoContent = await File(mapInfoPath).readAsString();
-            Map<String, dynamic> mapInfo = json.decode(mapInfoContent);
-            final int localVersion = mapInfo['version'] as int;
-            final (serverVersion, _) = await getPlaceMapInfo(placeId);
-
-            if (localVersion == serverVersion) {
-              return mapPath;
-            }
-          }
-        } catch (e) {
-          // If map info is corrupted, continue with download
-          print('Warning: Corrupted map info for place $placeId, re-downloading: $e');
-        }
-      }
-
       final url = await getPlaceMapUrl(placeId);
-      
-      // Download the map file
-      await _dio.download(url, mapPath);
-      
-      // Verify the downloaded file exists and has content
-      File downloadedFile = File(mapPath);
-      if (!await downloadedFile.exists() || await downloadedFile.length() == 0) {
-        throw PlacesException("Downloaded map file is empty or missing for place $placeId");
-      }
-
-      // Save map info for future cache checks
-      try {
-        final (serverVersion, updatedAt) = await getPlaceMapInfo(placeId);
-        Map<String, dynamic> mapInfo = {
-          'version': serverVersion,
-          'updated_at': updatedAt.toIso8601String(),
-          'downloaded_at': DateTime.now().toIso8601String(),
-          'file_size': await downloadedFile.length(),
-        };
-        await File(mapInfoPath).writeAsString(json.encode(mapInfo));
-      } catch (e) {
-        print('Warning: Could not save map info for place $placeId: $e');
-        // Don't fail the download if we can't save metadata
-      }
-
-      return mapPath;
-
-      // TODO: decrypt map file in the future if encrypted on server.
+      final tempPath = await _downloadToTemp(url, placeId);
+      return tempPath;
     } catch (e) {
       throw PlacesException("Failed to download map $placeId: $e");
     }
+  }
+
+  Future<String> _downloadToTemp(String url, int placeId) async {
+    Directory tempDir = await getTemporaryDirectory();
+    String tempPath = path.join(tempDir.path, 'map_$placeId${AppConstants.mapExtension}');
+    
+    // Download the map file to temporary location
+    await _dio.download(url, tempPath);
+    
+    // Verify the downloaded file exists and has content
+    File downloadedFile = File(tempPath);
+    if (!await downloadedFile.exists() || await downloadedFile.length() == 0) {
+      throw PlacesException("Downloaded map file is empty or missing for place $placeId");
+    }
+    
+    return tempPath;
   }
 
   Future<(int, DateTime)> getPlaceMapInfo(int placeId) async {
