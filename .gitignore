@@ -47,5 +47,9 @@ assets/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/
 macos/Flutter/GeneratedPluginRegistrant.swift
 windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugins.cmake
-assets/route.zip
-assets/osrm-routed
+
+
+# Ignore environment files with secrets
+.env
+.env.local
+.env.secret

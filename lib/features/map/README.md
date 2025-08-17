@@ -1,29 +1,23 @@
+
+
+
+
+# map
+
+maps/{id}.osm.gz
+maps/{id}.version.json
+maps/{id}.last_check.txt
+```json
+{
+  "version": 102,             // integer, for comparison
+  "generated_at": "2025-08-17T08:00:00Z" // timestamp for caching logic
+}
+```
+
+# folder structure
+
 I'll analyze the current architecture and folder structure to understand how the easyroute package can be integrated with the findeasy app for map and navigation features. Let me examine the relevant code and structure.
 
-Read file: library/easyroute/lib/easyroute.dart
-Read file: library/easyroute/lib/src/easyroute_api.dart
-Read file: app/findeasy/lib/features/map/data/models/
-Ran tool
-Ran tool
-Ran tool
-Ran tool
-Read file: app/findeasy/lib/features/nav/data/datasources/
-Ran tool
-Ran tool
-Read file: app/findeasy/pubspec.yaml
-Search files...
-Search files...
-Ran tool
-Search files...
-Ran tool
-Read file: app/findeasy/lib/features/nav/presentation/pages/
-Ran tool
-Ran tool
-Read file: app/findeasy/lib/main.dart
-Read file: app/findeasy/lib/app.dart
-Read file: library/easyroute/lib/src/data/models/poi.dart
-Read file: library/easyroute/lib/src/data/models/osm_way.dart
-Based on my analysis of the current architecture and the easyroute package capabilities, I can provide recommendations for optimizing the architecture and folder structure to better integrate easyroute with the findeasy app for map and navigation features.
 
 ## Current State Analysis
 

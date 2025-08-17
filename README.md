@@ -11,7 +11,7 @@ v0.2: speech
 
 https://github.com/amias-samir/GraphHooperMapRouteNavigation
 
-# TODO
+## TODO
 - 切换楼层时路线服务未更新（暂时忽略，待新dart版Ok再说）
 
 # deploy
@@ -23,6 +23,12 @@ sudo docker logs osrm
 ```
 
 # devolop
+
+## dependencies
+
+flutter pub add json_annotation
+flutter pub add --dev json_serializable
+flutter pub add --dev build_runner 
 
 ## GPT QUESTIONS
 

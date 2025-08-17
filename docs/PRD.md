@@ -1,6 +1,6 @@
 This software is for indoor navigation, especially for car finding in parking spaces in large shopping mall, airports, large exhibition center... etc.
 
-we support only 10 places at startup with only one software engineer for the first six months. And in next years increase to 1000 place  that have thousands of parking spaces. And increase to 100000 places world wide in the third year. We grow from a single person to a medium team in two years. Should we use difference architecture of software, deployment and hardware/cloud infrastructure, DevOps in different periods? If so recommend a involving solution for different periods of our company. Out budget is not infinite and is very tight actually.
+we support only 10 places at startup with only one software engineer for the first six months. And in next years increase to 1000 place  that have thousands of parking spaces. And increase to 100000 places world wide in the third year. We grow from a single person to a medium team in two years. we may use difference architecture of software, deployment and hardware/cloud infrastructure, DevOps in different periods. Out budget is not infinite and is very tight actually.
 
 It is composed of several systems
 
@@ -19,7 +19,7 @@ It is composed of several systems
 - Map upload/download/generation
   - .dwg/image/pdf automatical/semi-automatically parse (uploaded by building staff) and indoor elements recognition including route and point/polygon poi.
 - Map of place (see definition below) export.
-- Map cache. Place map will be cached to .osm.gz file for the front-end navigation app to download, because retrieve data from database or api is expensive. The .osm file have nodes, ways with tags. see happy_coast.osm in easyroute package. If there are better caching method, tell me. If cloud store service will be used, tell me.
+- Map cache. Place map will be cached to .osm.gz file for the front-end navigation app to download, because retrieve data from database or api is expensive. The .osm file have nodes, ways with tags. see happy_coast.osm in easyroute package. If there are better caching method, tell me. The map file should be versioned for the app client to check.
 
 - may automatically sync with 3rd-party indoor maps. (we not found supplier yet, but maybe in the future we will find thme)
 
@@ -46,7 +46,8 @@ use self-built ota server if necessary. (user cannot access the app market we su
 
 ## Map
 
-- get map (.osm.gz, encrypted, for a place) from backend using user's location. If no building found or match errorously, let the user to report or connect our customer manager. He may use the app to feed back or call us directly.
+- get map (.osm.gz, encrypted, for a place) from backend using user's location (Initially from phone's location sdk, GPS/cell tower). If no building found or match errorously, let the user to report or connect our customer manager. He may use the app to feed back or call us directly.
+  - the map file will be cached on the device, with version for the first time. For the second time, the app will check if the map files already downloaded. If downloaded in 24 hour, it use the map directly. If more than 24hour, the app check the version (or timestamp) against server (through api certainly), and decide whether to redownload. if same version or timestamp, do not download. Only check once every day, to reduce the server load, unless the user force refresh.
 - indoor map rendering. 2d for now and 3d in the future. May turn on or turn off the outdoor map as base layer.
 - show poi and road/ways. Show parking space name (like B1-103, E124) when zoom factor exceed certain value. Show less poi names (including shops, ...) if screen cannot hold
 
@@ -164,10 +165,14 @@ shop owner may run ads on the findeasy frontend app.
 He could pay on the merchant portal
 He may see how many users click the ads for his shop
 
-# DevOps
+
+
+# Question
+
+## DevOps
 If this software is developed by a single person at first at a startup company. And gradually more software engineers comes in. How should the develop-deplopy and operations & maintainance be done. Any CI/CD practice? When to bring in it?
 
-# cloud platform
+## cloud platform
 Should we use K8s and docker-style deployment? If should, when to use
 
 
