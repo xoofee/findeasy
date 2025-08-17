@@ -67,6 +67,7 @@ flutter:
     - assets/sherpa-onnx-streaming-zipformer-bilingual-zh-en-2023-02-20/
     - assets/person_top.png
     - assets/icon/app.png
+    - .env
     # - assets/osrm-routed
     # - assets/route.zip
 

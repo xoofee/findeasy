@@ -35,6 +35,8 @@ class AppConstants {
   static const Duration longCacheDuration = Duration(days: 7);
 
   /// Map Configuration
+  static const String mapStorageFolder = 'maps';
+  static const String mapExtension = '.osm.gz';
   static const double defaultZoomLevel = 15.0;
   static const double minZoomLevel = 10.0;
   static const double maxZoomLevel = 20.0;

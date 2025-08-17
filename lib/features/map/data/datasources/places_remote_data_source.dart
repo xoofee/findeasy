@@ -5,20 +5,21 @@ PlacesRemoteDataSource (compared to RemotePlacesDataSource) keeps feature name f
 */
 
 import 'dart:convert';
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:findeasy/core/constants/app_constants.dart';
 import 'package:findeasy/features/map/data/datasources/places_data_source.dart';
 import 'package:findeasy/features/map/domain/entities/place.dart';
 import 'package:findeasy/features/map/domain/exceptions.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
-
-//  = 'https://xoofee.top/findeasy-api';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as path;
 
 class PlacesRemoteDataSource implements PlacesDataSource{
   final Dio _dio;
   final String _baseUrl; 
 
   PlacesRemoteDataSource({required Dio dio, required String baseUrl}) : _dio = dio, _baseUrl = baseUrl;
-
 
   // Get nearby places
   Future<List<Place>> getPlaces(latlong2.LatLng center, {double maxDistance = 500.0, int limit = 10}) async {
@@ -41,11 +42,32 @@ class PlacesRemoteDataSource implements PlacesDataSource{
     }
   }
 
+  Future<String> downloadMap(int placeId) async {
+    try {
+      final (url, version, updatedAt) = await getPlaceMapInfo(placeId);
+      
+      Directory docDir = await getApplicationDocumentsDirectory();
+      String savePath = path.join(docDir.path, AppConstants.mapStorageFolder, '$placeId${AppConstants.mapExtension}');
 
-  Future<String> _getMapDownloadUrl(String placeId) async {
-    // For example: call your backend with Dio
-    final response = await _dio.get('$_baseUrl/places/$placeId/map_url');
-    return response.data["url"];
+      await _dio.download(url, savePath);
+
+      return savePath;
+
+      // TODO: decrypt map file in the future is encrypted on server.
+
+    } catch (e) {
+      throw PlacesException("Failed to download map $placeId: $e");
+    }
+  }
+
+  Future<(String, int, DateTime)> getPlaceMapInfo(int placeId) async {
+    try {
+      final response = await _dio.get('$_baseUrl/places/$placeId/map_info');
+
+      return (response.data['url'] as String, response.data['version'] as int, response.data['updated_at'] as DateTime);
+    } catch (e) {
+      throw PlacesException("Failed to load place map info $placeId: $e");
+    }
   }
 
   // Get all places

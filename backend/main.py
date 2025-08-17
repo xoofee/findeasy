@@ -112,6 +112,7 @@ async def get_nearby_places(lat: float, lon: float, max_distance: float = 500.0)
     })
     return [PlaceInDB(**place) for place in places]
 
+# TODO: (per user) rate limit
 @app.get("/places/{place_id}/{parking_zone}/download")
 async def generate_download_url(place_id: str, parking_zone: str):
     # Check if the place exists and if the parking zone is valid

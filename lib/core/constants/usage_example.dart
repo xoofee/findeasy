@@ -56,22 +56,6 @@ class ExampleApiService {
     }
   }
 
-  /// Example: Upload map data
-  Future<void> uploadMapData(String placeId, FormData formData) async {
-    try {
-      await _dioClient.dio.post(
-        '${ApiConstants.maps}/upload/$placeId',
-        data: formData,
-        options: Options(
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        ),
-      );
-    } on DioException catch (e) {
-      throw Exception(e.error ?? ApiConstants.networkErrorMessage);
-    }
-  }
 }
 
 /// Example: Using API constants in a repository implementation

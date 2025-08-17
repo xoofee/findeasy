@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/api_constants.dart';
 import '../constants/app_constants.dart';
 
@@ -56,7 +57,7 @@ class DioClient {
 class _LoggingInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (AppConstants.isDebug) {
+    if (kDebugMode) {
       print('🌐 API Request: ${options.method} ${options.uri}');
       print('📤 Headers: ${options.headers}');
       if (options.data != null) {
@@ -68,7 +69,7 @@ class _LoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (AppConstants.isDebug) {
+    if (kDebugMode) {
       print('✅ API Response: ${response.statusCode} ${response.requestOptions.uri}');
       print('📥 Data: ${response.data}');
     }
@@ -77,7 +78,7 @@ class _LoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (AppConstants.isDebug) {
+    if (kDebugMode) {
       print('❌ API Error: ${err.type} ${err.message}');
       print('🔗 URL: ${err.requestOptions.uri}');
       print('📊 Status: ${err.response?.statusCode}');

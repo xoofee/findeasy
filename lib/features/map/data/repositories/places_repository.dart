@@ -10,4 +10,8 @@ class PlacesRepository {
   Future<List<Place>> getPlaces(latlong2.LatLng center, {double maxDistance = 500.0, int limit = 10}) async {
     return await remoteDataSource.getPlaces(center, maxDistance: maxDistance, limit: limit);
   }
+
+  Future<String> downloadMap(int placeId) async {
+    return await remoteDataSource.downloadMap(placeId);
+  }
 }

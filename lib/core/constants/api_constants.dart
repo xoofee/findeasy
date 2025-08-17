@@ -1,4 +1,4 @@
-import 'app_constants.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// API Constants for the FindEasy application
 /// 
@@ -8,39 +8,38 @@ class ApiConstants {
   // Private constructor to prevent instantiation
   ApiConstants._();
 
-  // Base URLs for different environments
-  static const String _devBaseUrl = 'http://localhost:3000';
-  static const String _stagingBaseUrl = 'https://staging-api.findeasy.com';
-  static const String _productionBaseUrl = 'https://api.findeasy.com';
+  // Base URLs from environment variables
+  static String get _devBaseUrl => dotenv.env['DEV_API_URL'] ?? 'http://localhost:3000';
+  static String get _stagingBaseUrl => dotenv.env['STAGING_API_URL'] ?? 'https://staging-api.findeasy.com';
+  static String get _productionBaseUrl => dotenv.env['PRODUCTION_API_URL'] ?? 'https://api.findeasy.com';
+
+  static String get _env => dotenv.env['ENV'] ?? 'dev';
+
 
   /// Get the base URL based on the current environment
   /// 
   /// Uses Flutter's built-in environment detection (kDebugMode, kReleaseMode)
   /// to automatically switch between development and production URLs.
   static String get baseUrl {
-    if (AppConstants.isDebug) {
+    if (_env == 'dev') {
       return _devBaseUrl;
-    } else if (AppConstants.isProfile) {
+    } else if (_env == 'staging') {
       return _stagingBaseUrl;
     } else {
-      return _productionBaseUrl;
+      return _productionBaseUrl;  // production
     }
   }
 
   /// API Endpoints
   static const String auth = '/auth';
   static const String places = '/places';
-  static const String navigation = '/navigation';
   static const String feedback = '/feedback';
-  static const String maps = '/maps';
   static const String poi = '/poi';
 
   /// Complete API URLs
   static String get authUrl => '$baseUrl$auth';
   static String get placesUrl => '$baseUrl$places';
-  static String get navigationUrl => '$baseUrl$navigation';
   static String get feedbackUrl => '$baseUrl$feedback';
-  static String get mapsUrl => '$baseUrl$maps';
   static String get poiUrl => '$baseUrl$poi';
 
   /// API Configuration
