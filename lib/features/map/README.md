@@ -1,5 +1,7 @@
 
-
+Note:
+- Parsing belongs in data layer (mapper/parser).
+  - Repository hides parsing details
 
 
 # map

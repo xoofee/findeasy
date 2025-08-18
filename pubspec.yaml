@@ -46,7 +46,6 @@ dependencies:
 
   pinyin: ^3.3.0
   flutter_riverpod: ^2.6.1
-  get_it: ^8.2.0
   json_annotation: ^4.9.0
   flutter_dotenv: ^5.2.1
   
