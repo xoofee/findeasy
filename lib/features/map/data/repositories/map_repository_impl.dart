@@ -14,37 +14,11 @@ class MapRepositoryImpl implements MapRepository {
     required this.mapDataSource,
   });
 
-
-  Future<String> downloadMap(int placeId) async {
-    // Check cache first
-    final cachedPath = await getCachedMapPath(placeId);
-    if (cachedPath != null) {
-      return cachedPath;
-    }
-    
-    // Download and cache
-    final tempPath = await mapDataSource.downloadMap(placeId);
-    final finalPath = await _moveToCache(placeId, tempPath);
-    await _saveCacheInfo(placeId, finalPath);
-    
-    return finalPath;
-  }
-
-  /// Download and parse map into PlaceMap object
-  Future<(PlaceMap, PoiManager)> downloadAndParseMap(int placeId) async {
-    // Download the map file
-    final mapFilePath = await downloadMap(placeId);
-    
-    final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
-    
-    return (placeMap, poiManager);
-  }
-
   /// Get cached PlaceMap if available, otherwise download and parse
   @override
   Future<(PlaceMap, PoiManager)> getMap(int placeId) async {
     // Check if we have a cached PlaceMap
-    final cachedPath = await getCachedMapPath(placeId);
+    final cachedPath = await _getCachedMapPath(placeId);
     if (cachedPath != null) {
       try {
             // Parse the cached file
@@ -58,11 +32,36 @@ class MapRepositoryImpl implements MapRepository {
     }
     
     // Download and parse if not cached or parsing failed
-    final (placeMap, poiManager) = await downloadAndParseMap(placeId);
+    final (placeMap, poiManager) = await _downloadAndParseMap(placeId);
     return (placeMap, poiManager);
   }
 
-  Future<String?> getCachedMapPath(int placeId) async {
+  Future<String> _downloadMap(int placeId) async {
+    // Check cache first
+    final cachedPath = await _getCachedMapPath(placeId);
+    if (cachedPath != null) {
+      return cachedPath;
+    }
+    
+    // Download and cache
+    final tempPath = await mapDataSource.downloadMap(placeId);
+    final finalPath = await _moveToCache(placeId, tempPath);
+    await _saveCacheInfo(placeId, finalPath);
+    
+    return finalPath;
+  }
+
+  /// Download and parse map into PlaceMap object
+  Future<(PlaceMap, PoiManager)> _downloadAndParseMap(int placeId) async {
+    // Download the map file
+    final mapFilePath = await _downloadMap(placeId);
+    
+    final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
+    
+    return (placeMap, poiManager);
+  }
+
+  Future<String?> _getCachedMapPath(int placeId) async {
     try {
       Directory docDir = await getApplicationDocumentsDirectory();
       Directory mapDir = Directory(path.join(docDir.path, AppConstants.mapStorageFolder));
@@ -114,8 +113,7 @@ class MapRepositoryImpl implements MapRepository {
     String finalPath = path.join(mapDir.path, '$placeId${AppConstants.mapExtension}');
     
     // Move from temp to final location
-    await File(tempPath).copy(finalPath);
-    await File(tempPath).delete(); // Clean up temp file
+    await File(tempPath).rename(finalPath);
     
     return finalPath;
   }

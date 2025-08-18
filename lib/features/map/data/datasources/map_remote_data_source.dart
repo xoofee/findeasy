@@ -24,25 +24,26 @@ class MapRemoteDataSource implements MapDataSource {
     }
   }
 
+
+  /// Returns path to the downloaded map file
   @override
-  Future<String> getPlaceMapUrl(int placeId) async {
+  Future<String> downloadMap(int placeId) async {
+    try {
+      final url = await _getPlaceMapUrl(placeId);
+      final tempPath = await _downloadToTemp(url, placeId);
+      return tempPath;
+    } catch (e) {
+      throw PlacesException("Failed to download map $placeId: $e");
+    }
+  }
+
+  Future<String> _getPlaceMapUrl(int placeId) async {
     try {
       final response = await _dio.get('$_baseUrl/places/$placeId/map_url');
 
       return response.data['url'] as String;
     } catch (e) {
       throw PlacesException("Failed to load place map url $placeId: $e");
-    }
-  }
-
-  @override
-  Future<String> downloadMap(int placeId) async {
-    try {
-      final url = await getPlaceMapUrl(placeId);
-      final tempPath = await _downloadToTemp(url, placeId);
-      return tempPath;
-    } catch (e) {
-      throw PlacesException("Failed to download map $placeId: $e");
     }
   }
 
