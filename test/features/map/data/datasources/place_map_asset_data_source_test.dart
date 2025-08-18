@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:findeasy/features/map/data/datasources/map_asset_data_source.dart';
+import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
 
 // Mock for path_provider to avoid MissingPluginException in tests
 class MockPathProvider {
@@ -11,10 +11,10 @@ class MockPathProvider {
 
 void main() {
   group('MapAssetDataSource Tests', () {
-    late MapAssetDataSource dataSource;
+    late PlaceMapAssetDataSource dataSource;
 
     setUp(() {
-      dataSource = MapAssetDataSource();
+      dataSource = PlaceMapAssetDataSource();
       // Ensure Flutter binding is initialized for asset loading
       TestWidgetsFlutterBinding.ensureInitialized();
       
@@ -106,7 +106,7 @@ void main() {
     group('asset file constants', () {
       test('should have correct asset path constant', () {
         // Test that the class can be instantiated
-        expect(dataSource, isA<MapAssetDataSource>());
+        expect(dataSource, isA<PlaceMapAssetDataSource>());
       });
     });
 

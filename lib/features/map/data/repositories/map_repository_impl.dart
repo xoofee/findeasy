@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/core/constants/app_constants.dart';
-import 'package:findeasy/features/map/data/datasources/map_data_source.dart';
-import 'package:findeasy/features/map/domain/repositories/map_repository.dart';
+import 'package:findeasy/features/map/data/datasources/place_map_data_source.dart';
+import 'package:findeasy/features/map/domain/repositories/place_map_repository.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-class MapRepositoryImpl implements MapRepository {
-  final MapDataSource mapDataSource;
+class MapRepositoryImpl implements PlaceMapRepository {
+  final PlaceMapDataSource mapDataSource;
 
   MapRepositoryImpl({
     required this.mapDataSource,

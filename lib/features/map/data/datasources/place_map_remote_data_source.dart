@@ -1,16 +1,16 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:findeasy/core/constants/app_constants.dart';
-import 'package:findeasy/features/map/data/datasources/map_data_source.dart';
+import 'package:findeasy/features/map/data/datasources/place_map_data_source.dart';
 import 'package:findeasy/features/map/domain/exceptions.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-class MapRemoteDataSource implements MapDataSource {
+class PlaceMapRemoteDataSource implements PlaceMapDataSource {
   final Dio _dio;
   final String _baseUrl;
 
-  MapRemoteDataSource({required Dio dio, required String baseUrl}) : _dio = dio, _baseUrl = baseUrl;
+  PlaceMapRemoteDataSource({required Dio dio, required String baseUrl}) : _dio = dio, _baseUrl = baseUrl;
 
 
   @override

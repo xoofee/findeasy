@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:easyroute/easyroute.dart';
-import 'package:findeasy/features/map/data/datasources/map_asset_data_source.dart';
+import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
 import 'package:findeasy/features/map/data/repositories/map_repository_impl.dart';
 import 'package:findeasy/core/constants/app_constants.dart';
 
@@ -38,7 +38,7 @@ Future<String?> _getCachedMapPath(int placeId) async {
 void main() {
   group('MapRepositoryImpl Tests', () {
     late MapRepositoryImpl repository;
-    late MapAssetDataSource assetDataSource;
+    late PlaceMapAssetDataSource assetDataSource;
     late Directory tempDir;
     late Directory documentsDir;
 
@@ -67,7 +67,7 @@ void main() {
       await documentsDir.create();
       
       // Create asset data source
-      assetDataSource = MapAssetDataSource();
+      assetDataSource = PlaceMapAssetDataSource();
       
       // Create repository
       repository = MapRepositoryImpl(mapDataSource: assetDataSource);

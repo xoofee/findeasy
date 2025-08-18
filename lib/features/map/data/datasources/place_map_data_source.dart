@@ -1,4 +1,4 @@
-abstract class MapDataSource {
+abstract class PlaceMapDataSource {
   
   Future<(int, DateTime)> getPlaceMapInfo(int placeId);
 
