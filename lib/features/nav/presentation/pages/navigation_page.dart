@@ -11,7 +11,7 @@ class NavigationPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mapLoadingState = ref.watch(mapLoadingStateProvider);
+    final mapLoadingState = ref.watch(mapLoaderProvider).;
 
     return Scaffold(
       body: Stack(

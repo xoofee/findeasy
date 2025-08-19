@@ -1,6 +1,6 @@
+import 'package:findeasy/features/nav/presentation/pages/navigation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:findeasy/features/nav/presentation/pages/navigation_map_page.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -34,7 +34,7 @@ class _AppState extends State<App> {
         ),        
         title: 'findeasy',
         debugShowCheckedModeBanner: false,
-        home: const NavigationMapPage(),
+        home: const NavigationPage(),
       ),
     );
   }
