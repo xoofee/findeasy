@@ -7,12 +7,10 @@ import 'package:findeasy/features/map/domain/repositories/place_map_repository.d
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 
-class MapRepositoryImpl implements PlaceMapRepository {
-  final PlaceMapDataSource mapDataSource;
+class PlaceMapRepositoryImpl implements PlaceMapRepository {
+  final PlaceMapDataSource placeMapDataSource;
 
-  MapRepositoryImpl({
-    required this.mapDataSource,
-  });
+  PlaceMapRepositoryImpl(this.placeMapDataSource);
 
   /// Get cached PlaceMap if available, otherwise download and parse
   @override
@@ -44,7 +42,7 @@ class MapRepositoryImpl implements PlaceMapRepository {
     }
     
     // Download and cache
-    final tempPath = await mapDataSource.downloadMap(placeId);
+    final tempPath = await placeMapDataSource.downloadMap(placeId);
     final finalPath = await _moveToCache(placeId, tempPath);
     await _saveCacheInfo(placeId, finalPath);
     
@@ -84,7 +82,7 @@ class MapRepositoryImpl implements PlaceMapRepository {
           String mapInfoContent = await File(mapInfoPath).readAsString();
           Map<String, dynamic> mapInfo = json.decode(mapInfoContent);
           final int localVersion = mapInfo['version'] as int;
-          final (serverVersion, _) = await mapDataSource.getPlaceMapInfo(placeId);
+          final (serverVersion, _) = await placeMapDataSource.getPlaceMapInfo(placeId);
 
           if (localVersion == serverVersion) {
             return mapPath;
@@ -124,7 +122,7 @@ class MapRepositoryImpl implements PlaceMapRepository {
       Directory mapDir = Directory(path.join(docDir.path, AppConstants.mapStorageFolder));
       String mapInfoPath = path.join(mapDir.path, '$placeId${AppConstants.mapInfoExtension}');
       
-      final (serverVersion, updatedAt) = await mapDataSource.getPlaceMapInfo(placeId);
+      final (serverVersion, updatedAt) = await placeMapDataSource.getPlaceMapInfo(placeId);
       File downloadedFile = File(mapPath);
       
       Map<String, dynamic> mapInfo = {

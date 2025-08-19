@@ -1,12 +1,90 @@
+import 'package:findeasy/features/map/data/datasources/places_data_source.dart';
+import 'package:findeasy/features/map/data/datasources/places_fake_data_source.dart';
+import 'package:findeasy/features/map/data/repositories/place_map_repository_impl.dart';
+import 'package:findeasy/features/map/data/repositories/places_repository.dart';
+import 'package:findeasy/features/map/domain/entities/place.dart';
+import 'package:findeasy/features/map/domain/repositories/place_map_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:easyroute/easyroute.dart';
+import 'package:findeasy/features/nav/data/repositories/map_repository.dart';
+import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
 
-// Current location provider
-final currentLocationProvider = StreamProvider<LatLng>((ref) {
-  // This will be implemented with the existing device position repository
-  throw UnimplementedError('Current location provider not implemented yet');
+
+// ======= Providers =======
+final placesRepositoryProvider = Provider(
+  (ref) => PlacesRepository(placesDataSource: PlacesFakeDataSource()),
+);
+
+
+final placeMapRepositoryProvider = Provider((ref) => PlaceMapRepositoryImpl(PlaceMapAssetDataSource()));
+
+final nearestPlacesProvider =
+    FutureProvider.family<Place?, latlong2.LatLng>((ref, center) async {
+  final repo = ref.watch(placesRepositoryProvider);
+  final places = await repo.getPlaces(center);
+  return places.isNotEmpty ? places.first : null;
 });
+
+final mapLoaderProvider =
+    FutureProvider.family<PlaceMap?, Place>((ref, place) async {
+  final repo = ref.watch(placeMapRepositoryProvider);
+  await repo.getMap(place.id);
+  return repo.placeMap;
+});
+
+
+
+// Asset data source provider
+final assetDataSourceProvider = Provider<PlaceMapAssetDataSource>((ref) {
+  return PlaceMapAssetDataSource();
+});
+
+// Map initialization notifier - handles business logic
+class MapInitializationNotifier extends StateNotifier<MapLoadingState> {
+  final PlaceMapAssetDataSource _assetDataSource;
+  
+  MapInitializationNotifier(this._assetDataSource) : super(MapLoadingState.initial);
+
+  /// Initialize the map on app startup - business logic here
+  Future<(PlaceMap, PoiManager)> initializeMap() async {
+    try {
+      state = MapLoadingState.loading;
+      
+      // Load the asset map using existing PlaceMapAssetDataSource
+      final mapFilePath = await _assetDataSource.downloadMap(1); // Use placeId 1 for asset map
+      
+      // Load map using EasyRoute's existing function
+      final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
+      
+      // Update the providers with the loaded data
+      state = MapLoadingState.loaded;
+      
+      // Return the data for the UI to consume
+      return (placeMap, poiManager);
+      
+    } catch (e) {
+      state = MapLoadingState.error;
+      throw Exception('Failed to initialize map: $e');
+    }
+  }
+
+  void updateState(MapLoadingState newState) {
+    state = newState;
+  }
+
+  void setLoading() => updateState(MapLoadingState.loading);
+  void setLoaded() => updateState(MapLoadingState.loaded);
+  void setError() => updateState(MapLoadingState.error);
+  void reset() => updateState(MapLoadingState.initial);
+}
+
+// Map loading state provider
+final mapLoadingStateProvider = StateNotifierProvider<MapInitializationNotifier, MapLoadingState>((ref) {
+  final assetDataSource = ref.watch(assetDataSourceProvider);
+  return MapInitializationNotifier(assetDataSource);
+});
+
 
 // Current level provider for map display
 final currentLevelProvider = StateProvider<Level>((ref) => Level(0));
@@ -56,8 +134,24 @@ final selectedPoiProvider = StateProvider<Poi?>((ref) => null);
 // Route visualization provider
 final routeGeometryProvider = StateProvider<List<LatLng>>((ref) => []);
 
+// Map loading state notifier
+class MapLoadingStateNotifier extends StateNotifier<MapLoadingState> {
+  MapLoadingStateNotifier() : super(MapLoadingState.initial);
+
+  void updateState(MapLoadingState newState) {
+    state = newState;
+  }
+
+  void setLoading() => updateState(MapLoadingState.loading);
+  void setLoaded() => updateState(MapLoadingState.loaded);
+  void setError() => updateState(MapLoadingState.error);
+  void reset() => updateState(MapLoadingState.initial);
+}
+
 // Map loading state provider
-final mapLoadingStateProvider = StateProvider<MapLoadingState>((ref) => MapLoadingState.initial);
+final mapLoadingStateProvider = StateNotifierProvider<MapLoadingStateNotifier, MapLoadingState>((ref) {
+  return MapLoadingStateNotifier();
+});
 
 // Map loading state enum
 enum MapLoadingState {
@@ -77,11 +171,13 @@ class LevelSelectionNotifier extends StateNotifier<Level> {
 
   void goToNextLevel() {
     // This will be implemented to find the next available level
+    // For now, just increment by 1
     state = Level(state.value + 1);
   }
 
   void goToPreviousLevel() {
     // This will be implemented to find the previous available level
+    // For now, just decrement by 1
     state = Level(state.value - 1);
   }
 }

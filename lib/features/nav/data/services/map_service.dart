@@ -38,36 +38,6 @@ class MapService {
   /// Get the loaded POI manager
   PoiManager? get poiManager => _poiManager;
 
-  /// Get available levels
-  List<Level> get availableLevels {
-    if (_placeMap == null) return [];
-    return _placeMap!.levelMaps.keys.toList()..sort();
-  }
-
-  /// Get POIs for a specific level
-  List<Poi> getPoisForLevel(Level level) {
-    if (_placeMap == null) return [];
-    
-    final levelMap = _placeMap!.levelMaps[level];
-    if (levelMap == null) return [];
-    
-    return [
-      ...levelMap.parkingSpaces,
-      ...levelMap.elevators,
-      ...levelMap.shops,
-    ];
-  }
-
-  /// Get routes for a specific level
-  List<MapWay> getRoutesForLevel(Level level) {
-    if (_placeMap == null) return [];
-    
-    final levelMap = _placeMap!.levelMaps[level];
-    if (levelMap == null) return [];
-    
-    return levelMap.routes.where((route) => route.levels.contains(level)).toList();
-  }
-
   /// Find a route between two POIs
   Future<MapRoute> findRoute(int startPoiId, int endPoiId) async {
     if (_easyRoute == null) throw Exception('EasyRoute not initialized');

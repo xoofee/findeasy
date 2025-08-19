@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
-import 'package:findeasy/features/map/data/repositories/map_repository_impl.dart';
+import 'package:findeasy/features/map/data/repositories/place_map_repository_impl.dart';
 import 'package:findeasy/core/constants/app_constants.dart';
 
 // Helper method to get cached map path (similar to private method in repository)

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:findeasy/features/nav/presentation/pages/navigation_map_page.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -25,18 +27,15 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-
-    // MultiBlocProvider
-    return MaterialApp(
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-      ),        
-      title: 'findeasy',
-
-      debugShowCheckedModeBanner: false,
-      home: const Text('Hello World'),
-
+    return ProviderScope(
+      child: MaterialApp(
+        theme: ThemeData(
+          scaffoldBackgroundColor: Colors.white,
+        ),        
+        title: 'findeasy',
+        debugShowCheckedModeBanner: false,
+        home: const NavigationMapPage(),
+      ),
     );
-
   }
 }
