@@ -37,7 +37,7 @@ Future<String?> _getCachedMapPath(int placeId) async {
 
 void main() {
   group('MapRepositoryImpl Tests', () {
-    late MapRepositoryImpl repository;
+    late PlaceMapRepositoryImpl repository;
     late PlaceMapAssetDataSource assetDataSource;
     late Directory tempDir;
     late Directory documentsDir;
@@ -70,7 +70,7 @@ void main() {
       assetDataSource = PlaceMapAssetDataSource();
       
       // Create repository
-      repository = MapRepositoryImpl(mapDataSource: assetDataSource);
+      repository = PlaceMapRepositoryImpl(assetDataSource);
     });
 
     tearDown(() async {
@@ -95,14 +95,14 @@ void main() {
         // Act
         final result = await repository.getMap(placeId);
         
-        final placeMap = result.$1;
+        final placeMap = result.placeMap;
 
         print('nodes: ${placeMap.rawMap.nodes.length}, ways: ${placeMap.rawMap.ways.length}, levels: ${placeMap.rawMap.levels.length}');
 
         // Assert
-        expect(result, isA<(PlaceMap, PoiManager)>());
-        expect(result.$1, isA<PlaceMap>());
-        expect(result.$2, isA<PoiManager>());
+        expect(result, isA<MapResult>());
+        expect(result.placeMap, isA<PlaceMap>());
+        expect(result.poiManager, isA<PoiManager>());
         
         // Verify the map was downloaded and cached
         final cachedPath = await _getCachedMapPath(placeId);
@@ -121,7 +121,7 @@ void main() {
         final result = await repository.getMap(placeId);
         
         // Assert
-        expect(result, isA<(PlaceMap, PoiManager)>());
+        expect(result, isA<MapResult>());
 
         // Verify cache info was saved
         final cacheInfoPath = path.join(
@@ -142,8 +142,8 @@ void main() {
         final result2 = await repository.getMap(placeId2);
         
         // Assert
-        expect(result1, isA<(PlaceMap, PoiManager)>());
-        expect(result2, isA<(PlaceMap, PoiManager)>());
+        expect(result1, isA<MapResult>());
+        expect(result2, isA<MapResult>());
         
         // Verify both were cached
         final cachedPath1 = await _getCachedMapPath(placeId1);
@@ -214,7 +214,7 @@ void main() {
         final result = await repository.getMap(placeId);
         
         // Assert
-        expect(result, isA<(PlaceMap, PoiManager)>());
+        expect(result, isA<MapResult>());
         
         // Verify cache info was recreated
         final newCacheInfo = await File(cacheInfoPath).readAsString();

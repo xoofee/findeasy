@@ -12,12 +12,17 @@ import 'package:findeasy/features/map/data/datasources/place_map_asset_data_sour
 
 
 // ======= Providers =======
+
+final fakePlacesDataSourceProvider = Provider<PlacesDataSource>((ref) => PlacesFakeDataSource());
+
 final placesRepositoryProvider = Provider(
-  (ref) => PlacesRepository(placesDataSource: PlacesFakeDataSource()),
+  (ref) => PlacesRepository(placesDataSource: ref.read(fakePlacesDataSourceProvider)),
 );
 
+// Asset data source provider
+final assetDataSourceProvider = Provider<PlaceMapAssetDataSource>((ref) => PlaceMapAssetDataSource());
 
-final placeMapRepositoryProvider = Provider((ref) => PlaceMapRepositoryImpl(PlaceMapAssetDataSource()));
+final placeMapRepositoryProvider = Provider((ref) => PlaceMapRepositoryImpl(ref.read(assetDataSourceProvider)));
 
 final nearestPlacesProvider =
     FutureProvider.family<Place?, latlong2.LatLng>((ref, center) async {
@@ -27,63 +32,56 @@ final nearestPlacesProvider =
 });
 
 final mapLoaderProvider =
-    FutureProvider.family<PlaceMap?, Place>((ref, place) async {
+    FutureProvider.family<MapResult, int>((ref, placeId) async {
   final repo = ref.watch(placeMapRepositoryProvider);
-  await repo.getMap(place.id);
-  return repo.placeMap;
+  final mapResult = await repo.getMap(placeId);
+  return mapResult;
 });
 
-
-
-// Asset data source provider
-final assetDataSourceProvider = Provider<PlaceMapAssetDataSource>((ref) {
-  return PlaceMapAssetDataSource();
-});
-
-// Map initialization notifier - handles business logic
-class MapInitializationNotifier extends StateNotifier<MapLoadingState> {
-  final PlaceMapAssetDataSource _assetDataSource;
+// // Map initialization notifier - handles business logic
+// class MapInitializationNotifier extends StateNotifier<MapLoadingState> {
+//   final PlaceMapAssetDataSource _assetDataSource;
   
-  MapInitializationNotifier(this._assetDataSource) : super(MapLoadingState.initial);
+//   MapInitializationNotifier(this._assetDataSource) : super(MapLoadingState.initial);
 
-  /// Initialize the map on app startup - business logic here
-  Future<(PlaceMap, PoiManager)> initializeMap() async {
-    try {
-      state = MapLoadingState.loading;
+//   /// Initialize the map on app startup - business logic here
+//   Future<(PlaceMap, PoiManager)> initializeMap() async {
+//     try {
+//       state = MapLoadingState.loading;
       
-      // Load the asset map using existing PlaceMapAssetDataSource
-      final mapFilePath = await _assetDataSource.downloadMap(1); // Use placeId 1 for asset map
+//       // Load the asset map using existing PlaceMapAssetDataSource
+//       final mapFilePath = await _assetDataSource.downloadMap(1); // Use placeId 1 for asset map
       
-      // Load map using EasyRoute's existing function
-      final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
+//       // Load map using EasyRoute's existing function
+//       final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
       
-      // Update the providers with the loaded data
-      state = MapLoadingState.loaded;
+//       // Update the providers with the loaded data
+//       state = MapLoadingState.loaded;
       
-      // Return the data for the UI to consume
-      return (placeMap, poiManager);
+//       // Return the data for the UI to consume
+//       return (placeMap, poiManager);
       
-    } catch (e) {
-      state = MapLoadingState.error;
-      throw Exception('Failed to initialize map: $e');
-    }
-  }
+//     } catch (e) {
+//       state = MapLoadingState.error;
+//       throw Exception('Failed to initialize map: $e');
+//     }
+//   }
 
-  void updateState(MapLoadingState newState) {
-    state = newState;
-  }
+//   void updateState(MapLoadingState newState) {
+//     state = newState;
+//   }
 
-  void setLoading() => updateState(MapLoadingState.loading);
-  void setLoaded() => updateState(MapLoadingState.loaded);
-  void setError() => updateState(MapLoadingState.error);
-  void reset() => updateState(MapLoadingState.initial);
-}
+//   void setLoading() => updateState(MapLoadingState.loading);
+//   void setLoaded() => updateState(MapLoadingState.loaded);
+//   void setError() => updateState(MapLoadingState.error);
+//   void reset() => updateState(MapLoadingState.initial);
+// }
 
-// Map loading state provider
-final mapLoadingStateProvider = StateNotifierProvider<MapInitializationNotifier, MapLoadingState>((ref) {
-  final assetDataSource = ref.watch(assetDataSourceProvider);
-  return MapInitializationNotifier(assetDataSource);
-});
+// // Map loading state provider
+// final mapLoadingStateProvider = StateNotifierProvider<MapInitializationNotifier, MapLoadingState>((ref) {
+//   final assetDataSource = ref.watch(assetDataSourceProvider);
+//   return MapInitializationNotifier(assetDataSource);
+// });
 
 
 // Current level provider for map display

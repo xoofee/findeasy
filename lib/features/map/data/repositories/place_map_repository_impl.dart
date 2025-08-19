@@ -14,15 +14,15 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
 
   /// Get cached PlaceMap if available, otherwise download and parse
   @override
-  Future<(PlaceMap, PoiManager)> getMap(int placeId) async {
+  Future<MapResult> getMap(int placeId) async {
     // Check if we have a cached PlaceMap
     final cachedPath = await _getCachedMapPath(placeId);
     if (cachedPath != null) {
       try {
             // Parse the cached file
-        final (placeMap, poiManager) = await loadMapFromOsmFile(cachedPath);
+        final mapResult = await loadMapFromOsmFile(cachedPath);
         
-        return (placeMap, poiManager);
+        return mapResult;
       } catch (e) {
         print('Warning: Failed to parse cached map for place $placeId: $e');
         // Continue to download if parsing fails
@@ -30,8 +30,8 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
     }
     
     // Download and parse if not cached or parsing failed
-    final (placeMap, poiManager) = await _downloadAndParseMap(placeId);
-    return (placeMap, poiManager);
+    final mapResult = await _downloadAndParseMap(placeId);
+    return mapResult;
   }
 
   Future<String> _downloadMap(int placeId) async {
@@ -50,13 +50,13 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
   }
 
   /// Download and parse map into PlaceMap object
-  Future<(PlaceMap, PoiManager)> _downloadAndParseMap(int placeId) async {
+  Future<MapResult> _downloadAndParseMap(int placeId) async {
     // Download the map file
     final mapFilePath = await _downloadMap(placeId);
     
-    final (placeMap, poiManager) = await loadMapFromOsmFile(mapFilePath);
+    final mapResult = await loadMapFromOsmFile(mapFilePath);
     
-    return (placeMap, poiManager);
+    return mapResult;
   }
 
   Future<String?> _getCachedMapPath(int placeId) async {
