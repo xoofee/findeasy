@@ -55,7 +55,45 @@ void main() async{
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const App(),
+      child: const LifecycleWatcher(child: App()),
     ),
   );
+}
+
+
+class LifecycleWatcher extends StatefulWidget {
+  final Widget child;
+  const LifecycleWatcher({super.key, required this.child});
+
+  @override
+  State<LifecycleWatcher> createState() => _LifecycleWatcherState();
+}
+
+class _LifecycleWatcherState extends State<LifecycleWatcher>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // refresh provider when app resumes
+      final container = ProviderScope.containerOf(context);
+      container.refresh(currentPositionProvider);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }

@@ -4,6 +4,8 @@ import 'package:findeasy/features/map/data/repositories/place_map_repository_imp
 import 'package:findeasy/features/map/data/repositories/places_repository.dart';
 import 'package:findeasy/features/map/domain/entities/place.dart';
 import 'package:findeasy/features/map/domain/repositories/place_map_repository.dart';
+import 'package:findeasy/features/nav/data/datasources/fake_position_data_source.dart';
+import 'package:findeasy/features/nav/data/repositories/device_position_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:easyroute/easyroute.dart';
@@ -13,19 +15,54 @@ import 'package:findeasy/features/map/data/datasources/place_map_asset_data_sour
 
 // ======= Providers =======
 
+// location
+
+final fakePositionDataSourceProvider = Provider((ref) => FakePositionDataSource());
+// final devicePositionDataSourceProvider = Provider((ref) => GeolocatorDevicePositionDataSource());
+
+final devicePositionRepositoryProvider = Provider((ref) => DevicePositionRepository(devicePositionSource: ref.read(fakePositionDataSourceProvider)));
+
+final currentPositionProvider = FutureProvider<latlong2.LatLng>((ref) async {
+  final repo = ref.watch(devicePositionRepositoryProvider);
+  return repo.getCurrentPosition();
+});
+
+// places
+
 final fakePlacesDataSourceProvider = Provider<PlacesDataSource>((ref) => PlacesFakeDataSource());
 
 final placesRepositoryProvider = Provider(
   (ref) => PlacesRepository(placesDataSource: ref.read(fakePlacesDataSourceProvider)),
 );
 
-// Asset data source provider
+// place map
 final assetDataSourceProvider = Provider<PlaceMapAssetDataSource>((ref) => PlaceMapAssetDataSource());
 
 final placeMapRepositoryProvider = Provider((ref) => PlaceMapRepositoryImpl(ref.read(assetDataSourceProvider)));
 
-final nearestPlacesProvider =
-    FutureProvider.family<Place?, latlong2.LatLng>((ref, center) async {
+
+
+final currentPlaceProvider = StateProvider<Place?>((ref) => null);
+
+// Nearby places fetched from repo
+final nearbyPlacesProvider =
+    FutureProvider<List<Place>>((ref) async {
+  final center = await ref.watch(currentPositionProvider.future);
+  final repo = ref.watch(placesRepositoryProvider);
+  return repo.getPlaces(center);
+});
+
+// Map loader depends on the selected place
+final mapLoaderProvider =
+    FutureProvider<MapResult?>((ref) async {
+  final place = ref.watch(currentPlaceProvider);
+  if (place == null) return null;
+
+  final repo = ref.watch(placeMapRepositoryProvider);
+  return repo.getMap(place.id);
+});
+
+final nearestPlaceProvider = StateProvider<Place?>( (ref) => {
   final repo = ref.watch(placesRepositoryProvider);
   final places = await repo.getPlaces(center);
   return places.isNotEmpty ? places.first : null;
