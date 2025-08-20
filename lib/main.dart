@@ -7,26 +7,14 @@ for test purpose use fake data sources and trigger load a fixed place map at sta
 */
 
 
-// import 'package:hive_flutter/hive_flutter.dart';
 import 'package:findeasy/app.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async{
-  // return;
-
-  // await Hive.initFlutter();
-
-  // Hive.registerAdapter(KLineSerieAdapter());
-  // Hive.registerAdapter(CandleAdapter());
-  // Hive.registerAdapter(MacdAdapter());
-  // Hive.registerAdapter(KLineTypeAdapter());
-  // Hive.registerAdapter(KLineMapWrapperAdapter());
-
-
+ 
   // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
   //   statusBarColor: Colors.transparent,  // Transparent status bar
   //   systemNavigationBarColor: Colors.black.withOpacity(0.5),  // Dark overlay with some opacity (optional)
@@ -46,30 +34,22 @@ void main() async{
 
   // await init(); // injector setup
 
-  final container = ProviderContainer();
-
-  container.read(mapLoaderProvider(0).future).then((mapResult) {
-    print("Loaded map for place 0: $mapResult");
-  });
-
   runApp(
-    UncontrolledProviderScope(
-      container: container,
-      child: const LifecycleWatcher(child: App()),
+    const ProviderScope(
+      child: LifecycleWatcher(child: App()),
     ),
   );
 }
 
-
-class LifecycleWatcher extends StatefulWidget {
+class LifecycleWatcher extends ConsumerStatefulWidget {
   final Widget child;
   const LifecycleWatcher({super.key, required this.child});
 
   @override
-  State<LifecycleWatcher> createState() => _LifecycleWatcherState();
+  ConsumerState<LifecycleWatcher> createState() => _LifecycleWatcherState();
 }
 
-class _LifecycleWatcherState extends State<LifecycleWatcher>
+class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
     with WidgetsBindingObserver {
   @override
   void initState() {
@@ -86,9 +66,7 @@ class _LifecycleWatcherState extends State<LifecycleWatcher>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // refresh provider when app resumes
-      final container = ProviderScope.containerOf(context);
-      container.refresh(currentPositionProvider);
+      refreshDevicePosition(ref);      
     }
   }
 

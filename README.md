@@ -30,6 +30,9 @@ flutter pub add json_annotation
 flutter pub add --dev json_serializable
 flutter pub add --dev build_runner 
 
+flutter pub add freezed_annotation
+flutter pub add --dev freezed
+
 ## GPT QUESTIONS
 
 design a backend for a frontend app. the app could get user's gps location and floor level and ask the server to respond a map of the underground parking lot map (a zip file) in the building. the building is calculated from the gps location provided by the user. the server maintain a list of builds, each with a gps location. the backend may support tens of thousands of different buildings in many cities

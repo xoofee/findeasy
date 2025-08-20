@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 
 /// Application Constants for the FindEasy application
 /// 
@@ -47,6 +48,7 @@ class AppConstants {
   static const Duration locationUpdateInterval = Duration(seconds: 5);
   static const Duration deviationCheckInterval = Duration(seconds: 10);
   static const double deviationThreshold = 50.0; // meters
+  static const latlong2.LatLng defaultMapCenter = latlong2.LatLng(22.542883, 114.062996);
 
   /// Voice Configuration
   static const String defaultLanguage = 'en-US';

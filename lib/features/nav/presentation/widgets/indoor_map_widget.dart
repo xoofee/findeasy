@@ -1,3 +1,4 @@
+import 'package:findeasy/core/constants/app_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -31,57 +32,27 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final placeMap = ref.watch(placeMapProvider);
-    final currentLevel = ref.watch(currentLevelProvider);
-    final pois = ref.watch(poisForCurrentLevelProvider);
-    final routes = ref.watch(routesForCurrentLevelProvider);
-    final selectedPoi = ref.watch(selectedPoiProvider);
-    final routeGeometry = ref.watch(routeGeometryProvider);
-    final mapLoadingState = ref.watch(mapLoadingStateProvider);
+    final asyncMapResult = ref.watch(placeMapProvider).valueOrNull;   // reactive data stream rather than a single future callback.
+    final placeMap = asyncMapResult?.placeMap;
+    final placePosition = placeMap?.position;
 
-    if (mapLoadingState == MapLoadingState.loading) {
-      return const Center(child: CircularProgressIndicator());
-    }
+    // final currentLevel = ref.watch(currentLevelProvider);
 
-    if (mapLoadingState == MapLoadingState.error) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red),
-            SizedBox(height: 16),
-            Text('Failed to load map', style: TextStyle(fontSize: 18)),
-          ],
-        ),
-      );
-    }
-
-    if (placeMap == null) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.map_outlined, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('No map loaded', style: TextStyle(fontSize: 18)),
-          ],
-        ),
-      );
-    }
 
     // Build POI markers
-    _buildPoiMarkers(pois, selectedPoi);
+    // _buildPoiMarkers(pois, selectedPoi);
     
     // Build POI polygons (for way-based POIs)
-    _buildPoiPolygons(pois);
+    
+    // _buildPoiPolygons(pois);
     
     // Build route lines
-    _buildRouteLines(routes, routeGeometry);
+    // _buildRouteLines(routes, routeGeometry);
 
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: placeMap.position,
+        initialCenter: placePosition ?? AppConstants.defaultMapCenter,
         initialZoom: 18.0,
         maxZoom: 20.0,
         minZoom: 16.0,
@@ -112,7 +83,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
               child: PoiMarkerWidget(
                 poi: poi,
                 isSelected: selectedPoi?.id == poi.id,
-                onTap: () => _onPoiTap(poi),
+                // onTap: () => _onPoiTap(poi),
                 showLabel: true,
               ),
             ))
@@ -164,14 +135,14 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
     return Colors.grey;
   }
 
-  void _onMapReady(PlaceMap placeMap) {
+  void _onMapReady(PlaceMap? placeMap) {
     // Center map on the place
-    _mapController.move(placeMap.position, 18.0);
+    if (placeMap != null) _mapController.move(placeMap.position, 18.0);
   }
 
-  void _onPoiTap(Poi poi) {
-    ref.read(selectedPoiProvider.notifier).state = poi;
-  }
+  // void _onPoiTap(Poi poi) {
+  //   ref.read(selectedPoiProvider.notifier).state = poi;
+  // }
 
   @override
   void dispose() {

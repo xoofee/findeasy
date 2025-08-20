@@ -11,7 +11,7 @@ class NavigationPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mapLoadingState = ref.watch(mapLoaderProvider);
+    // final mapLoadingState = ref.watch(mapLoaderProvider);
 
     return Scaffold(
       body: Stack(
@@ -53,21 +53,21 @@ class NavigationPage extends ConsumerWidget {
           ),
           
           // Bottom POI list
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: const PoiListWidget(),
-          ),
+          // Positioned(
+          //   bottom: 0,
+          //   left: 0,
+          //   right: 0,
+          //   child: const PoiListWidget(),
+          // ),
           
           // Loading overlay
-          if (mapLoadingState == MapLoadingState.loading)
-            Container(
-              color: Colors.black.withOpacity(0.5),
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
+          // if (mapLoadingState == MapLoadingState.loading)
+          //   Container(
+          //     color: Colors.black.withOpacity(0.5),
+          //     child: const Center(
+          //       child: CircularProgressIndicator(),
+          //     ),
+          //   ),
         ],
       ),
     );

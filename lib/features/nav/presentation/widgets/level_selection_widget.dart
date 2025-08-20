@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 
-/// Widget for selecting different building levels
+/// Compact widget for selecting different building levels
+/// Shows max 4 floors at once, scrollable if more floors exist
 class LevelSelectionWidget extends ConsumerWidget {
   const LevelSelectionWidget({super.key});
 
@@ -12,76 +13,91 @@ class LevelSelectionWidget extends ConsumerWidget {
     final currentLevel = ref.watch(currentLevelProvider);
     final availableLevels = ref.watch(availableLevelsProvider);
     
-    if (availableLevels.isEmpty) {
+    if (availableLevels.isEmpty || currentLevel == null) {
       return const SizedBox.shrink();
     }
 
+    // Sort levels to ensure proper ordering
+    final sortedLevels = List<Level>.from(availableLevels)..sort((a, b) => b.compareTo(a));
+
+    // print(sortedLevels);
+    
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(25),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.keyboard_arrow_up),
-            onPressed: () => _goToNextLevel(ref, availableLevels),
-            tooltip: 'Next Level',
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          maxHeight: 200, // Limit height to show max ~4 floors
+          minHeight: 120, // Minimum height for better UX
+        ),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: sortedLevels.map((level) => _buildLevelItem(
+              level: level,
+              isSelected: level == currentLevel,
+              onTap: () => _selectLevel(ref, level),
+            )).toList(),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.blue,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _getLevelDisplayName(currentLevel),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.keyboard_arrow_down),
-            onPressed: () => _goToPreviousLevel(ref, availableLevels),
-            tooltip: 'Previous Level',
-          ),
-        ],
+        ),
       ),
     );
   }
 
-  void _goToNextLevel(WidgetRef ref, List<Level> availableLevels) {
-    final currentLevel = ref.read(currentLevelProvider);
-    final currentIndex = availableLevels.indexOf(currentLevel);
-    if (currentIndex < availableLevels.length - 1) {
-      ref.read(currentLevelProvider.notifier).state = availableLevels[currentIndex + 1];
-    }
-  }
-
-  void _goToPreviousLevel(WidgetRef ref, List<Level> availableLevels) {
-    final currentLevel = ref.read(currentLevelProvider);
-    final currentIndex = availableLevels.indexOf(currentLevel);
-    if (currentIndex > 0) {
-      ref.read(currentLevelProvider.notifier).state = availableLevels[currentIndex - 1];
-    }
+  Widget _buildLevelItem({
+    required Level level,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 60, // Fixed width for compact design
+        height: 40, // Fixed height for each level item
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.orange : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.orange : Colors.grey.shade300,
+            width: 1,
+          ),
+        ),
+        child: Center(
+          child: Text(
+            _getLevelDisplayName(level),
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black87,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              fontSize: 12,
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ),
+    );
   }
 
   String _getLevelDisplayName(Level level) {
-    if (level.value == 0) return 'Ground Floor';
-    if (level.value > 0) return 'Level ${level.value.toInt()}';
-    return 'Level ${level.value.toInt()}'; // e.g., Level -1 for basement
+    if (level.value == 0) return 'G';
+    if (level.value > 0) return '${level.value.toInt()}';
+    return '${level.value.toInt()}'; // e.g., -1 for basement
+  }
+
+  void _selectLevel(WidgetRef ref, Level level) {
+    ref.read(currentLevelProvider.notifier).state = level;
   }
 }
