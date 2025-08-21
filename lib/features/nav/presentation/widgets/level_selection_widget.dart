@@ -91,10 +91,15 @@ class LevelSelectionWidget extends ConsumerWidget {
     );
   }
 
+  // String _getLevelDisplayName(Level level) {
+  //   if (level.value == 0) return 'G';
+  //   if (level.value > 0) return '${level.value.toInt()}';
+  //   return '${level.value.toInt()}'; // e.g., -1 for basement
+  // }
+
   String _getLevelDisplayName(Level level) {
-    if (level.value == 0) return 'G';
-    if (level.value > 0) return '${level.value.toInt()}';
-    return '${level.value.toInt()}'; // e.g., -1 for basement
+    if (level.value >= 0) return 'F${level.value.toInt()+1}';
+    return 'B${level.value.toInt().abs()}'; // e.g., -1 for basement
   }
 
   void _selectLevel(WidgetRef ref, Level level) {

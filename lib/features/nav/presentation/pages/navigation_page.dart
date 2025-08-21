@@ -52,8 +52,8 @@ class NavigationPage extends ConsumerWidget {
           // ),
 
           Positioned(
-            bottom: MediaQuery.of(context).padding.bottom + 16,
-            left: 16,
+            bottom: MediaQuery.of(context).padding.bottom + 8,
+            left: 8,
             child: const LevelSelectionWidget(),
           ),
           

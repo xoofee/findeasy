@@ -20,7 +20,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
   late AnimatedMapController _animatedMapController;
 
   // late MapController _mapController;
-  late List<Marker> _poiMarkers;
+  late List<Marker> _parkingSpaceNameMarkers;
   late List<Polygon> _poiPolygons;
   late List<Polyline> _routeLines;
 
@@ -30,7 +30,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     _animatedMapController = AnimatedMapController(vsync: this);
 
     // _mapController = MapController();
-    _poiMarkers = [];
+    _parkingSpaceNameMarkers = [];
     _poiPolygons = [];
     _routeLines = [];
   }
@@ -43,6 +43,19 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
 
     final currentLevel = ref.watch(currentLevelProvider);
 
+    // Listen for placeMap changes and animate to new position
+    ref.listen<AsyncValue<MapResult?>>(placeMapProvider, (previous, next) {
+      final previousPlaceMap = previous?.valueOrNull?.placeMap;
+      final nextPlaceMap = next.valueOrNull?.placeMap;
+      
+      if (nextPlaceMap != null && nextPlaceMap != previousPlaceMap) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _animatedMapController.animateTo(
+            dest: nextPlaceMap.position, 
+          );
+        });
+      }
+    });
 
     // Build POI markers
     // _buildPoiMarkers(pois, selectedPoi);
@@ -50,14 +63,16 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     // Build POI polygons (for way-based POIs)
     if (currentLevel != null && placeMap != null && placeMap.levelMaps.containsKey(currentLevel)) {
       _poiPolygons.clear();
+      // _parkingSpaceNameMarkers.clear();
       final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
       _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue));
+      _parkingSpaceNameMarkers = parkingSpaces.toTextMarkers();
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _animatedMapController.animateTo(
-          dest: placeMap.position, 
-        );
-      });
+      // WidgetsBinding.instance.addPostFrameCallback((_) {
+      //   _animatedMapController.animateTo(
+      //     dest: placeMap.position, 
+      //   );
+      // });
     }
     
     // Build route lines
@@ -68,8 +83,12 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
       options: MapOptions(
         initialCenter: placePosition ?? AppConstants.defaultMapCenter,
         initialZoom: 18.0,
-        maxZoom: 20.0,
+        maxZoom: 22.0,
         minZoom: 16.0,
+        onPositionChanged: (MapCamera camera, bool hasGesture) {
+          ref.read(mapZoomProvider.notifier).state = camera.zoom;
+        },           
+
         // onMapReady: () => _onMapReady(placeMap),
       ),
       children: [
@@ -77,8 +96,17 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         TileLayer(
           urlTemplate: 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=0e224c51130f44f59a53672538a958f6',
           subdomains: const ['a', 'b', 'c'],),
-        // POI Markers
-        MarkerLayer(markers: _poiMarkers),
+        // POI Markers - only show at high zoom levels
+        // ZoomDependentMarkers(
+        //   markers: _parkingSpaceNameMarkers,
+        // ),
+
+        Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+          final mapZoom = ref.watch(mapZoomProvider);
+          if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers);
+          return const SizedBox.shrink();
+        }),
+
         // POI Polygons
         PolygonLayer(polygons: _poiPolygons),
         // Route Lines
@@ -115,7 +143,29 @@ extension on List<Poi> {
           ))
       .toList();
   }
+
+  List<Marker> toTextMarkers() {
+    return map((poi) => Marker(
+            point: poi.center,
+            child: Text(poi.name, textAlign: TextAlign.center),
+            width: 60,
+          ))
+      .toList();
+  }  
 }
+
+// void _buildPoiMarkers(List<Poi> pois) {
+//   _poiMarkers = pois
+//     .where((poi) => poi.geometry == null) // Only point-based POIs
+//     .map((poi) => Marker(
+//             point: poi.center,
+//             child: Text(poi.name, textAlign: TextAlign.center),
+//             width: 60,
+//         ))
+//     .toList();
+// }
+
+
 
 /*
 
