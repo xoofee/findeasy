@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_marker_widget.dart';
+import 'package:flutter_map_animations/flutter_map_animations.dart';
 
 /// Main indoor map widget using flutter_map
 class IndoorMapWidget extends ConsumerStatefulWidget {
@@ -15,8 +16,10 @@ class IndoorMapWidget extends ConsumerStatefulWidget {
   ConsumerState<IndoorMapWidget> createState() => _IndoorMapWidgetState();
 }
 
-class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
-  late MapController _mapController;
+class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerProviderStateMixin{
+  late AnimatedMapController _animatedMapController;
+
+  // late MapController _mapController;
   late List<Marker> _poiMarkers;
   late List<Polygon> _poiPolygons;
   late List<Polyline> _routeLines;
@@ -24,7 +27,9 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
   @override
   void initState() {
     super.initState();
-    _mapController = MapController();
+    _animatedMapController = AnimatedMapController(vsync: this);
+
+    // _mapController = MapController();
     _poiMarkers = [];
     _poiPolygons = [];
     _routeLines = [];
@@ -36,27 +41,36 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
     final placeMap = asyncMapResult?.placeMap;
     final placePosition = placeMap?.position;
 
-    // final currentLevel = ref.watch(currentLevelProvider);
+    final currentLevel = ref.watch(currentLevelProvider);
 
 
     // Build POI markers
     // _buildPoiMarkers(pois, selectedPoi);
     
     // Build POI polygons (for way-based POIs)
-    
-    // _buildPoiPolygons(pois);
+    if (currentLevel != null && placeMap != null && placeMap.levelMaps.containsKey(currentLevel)) {
+      _poiPolygons.clear();
+      final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
+      _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue));
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _animatedMapController.animateTo(
+          dest: placeMap.position, 
+        );
+      });
+    }
     
     // Build route lines
     // _buildRouteLines(routes, routeGeometry);
 
     return FlutterMap(
-      mapController: _mapController,
+      mapController: _animatedMapController.mapController,
       options: MapOptions(
         initialCenter: placePosition ?? AppConstants.defaultMapCenter,
         initialZoom: 18.0,
         maxZoom: 20.0,
         minZoom: 16.0,
-        onMapReady: () => _onMapReady(placeMap),
+        // onMapReady: () => _onMapReady(placeMap),
       ),
       children: [
         // Base tile layer (outdoor map)
@@ -71,35 +85,57 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
         PolylineLayer(polylines: _routeLines),
       ],
     );
+
   }
 
-  void _buildPoiMarkers(List<Poi> pois, Poi? selectedPoi) {
+  // void _onMapReady(PlaceMap? placeMap) {
+  //   // Center map on the place
+  //   if (placeMap != null) _mapController.move(placeMap.position, 18.0);
+  // }
+
+  // void _onPoiTap(Poi poi) {
+  //   ref.read(selectedPoiProvider.notifier).state = poi;
+  // }
+
+  @override
+  void dispose() {
+    _animatedMapController.dispose();
+    super.dispose();
+  }
+}
+
+extension on List<Poi> {
+  List<Polygon> toPolygons(Color color, Color borderColor, {double borderStrokeWidth = 2}) {
+    return where((poi) => poi.geometry != null)
+      .map((poi) => Polygon(
+            points: poi.geometry!,
+            color: color.withOpacity(0.3),
+            borderColor: borderColor,
+            borderStrokeWidth: borderStrokeWidth,
+          ))
+      .toList();
+  }
+}
+
+/*
+
+
+
+
+  void _buildPoiMarkers(List<Poi> pois) {
     _poiMarkers = pois
-        .where((poi) => poi.geometry == null) // Only point-based POIs
-        .map((poi) => Marker(
-              point: poi.position,
-              width: 30,
-              height: 30,
-              child: PoiMarkerWidget(
-                poi: poi,
-                isSelected: selectedPoi?.id == poi.id,
-                // onTap: () => _onPoiTap(poi),
-                showLabel: true,
-              ),
-            ))
-        .toList();
-  }
-
-  void _buildPoiPolygons(List<Poi> pois) {
-    _poiPolygons = pois
-        .where((poi) => poi.geometry != null) // Only way-based POIs
-        .map((poi) => Polygon(
-              points: poi.geometry!,
-              color: _getPoiPolygonColor(poi.type).withOpacity(0.3),
-              borderColor: _getPoiPolygonColor(poi.type),
-              borderStrokeWidth: 2,
-            ))
-        .toList();
+      .where((poi) => poi.geometry == null) // Only point-based POIs
+      .map((poi) => Marker(
+            point: poi.position,
+            width: 30,
+            height: 30,
+            child: PoiMarkerWidget(
+              poi: poi,
+              // onTap: () => _onPoiTap(poi),
+              showLabel: true,
+            ),
+          ))
+      .toList();
   }
 
   void _buildRouteLines(List<MapWay> routes, List<LatLng> routeGeometry) {
@@ -135,18 +171,5 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> {
     return Colors.grey;
   }
 
-  void _onMapReady(PlaceMap? placeMap) {
-    // Center map on the place
-    if (placeMap != null) _mapController.move(placeMap.position, 18.0);
-  }
 
-  // void _onPoiTap(Poi poi) {
-  //   ref.read(selectedPoiProvider.notifier).state = poi;
-  // }
-
-  @override
-  void dispose() {
-    _mapController.dispose();
-    super.dispose();
-  }
-}
+*/

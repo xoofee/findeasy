@@ -23,6 +23,7 @@ void main() async{
   
   WidgetsFlutterBinding.ensureInitialized();    // enable getApplicationDocumentsDirectory
 
+
   // Load environment variables
   try {
     await dotenv.load(fileName: ".env");
@@ -55,6 +56,10 @@ class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      refreshDevicePosition(ref);
+    });    
   }
 
   @override
@@ -65,6 +70,8 @@ class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+
+    // in windows it may trigger twice, because focus of windows means resumed.
     if (state == AppLifecycleState.resumed) {
       refreshDevicePosition(ref);      
     }
