@@ -46,10 +46,15 @@ class NavigationPage extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                // Level selection
-                const Expanded(child: LevelSelectionWidget()),
+
               ],
             ),
+          ),
+          
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+            left: 16,
+            child: const LevelSelectionWidget(),
           ),
           
           // Bottom POI list
