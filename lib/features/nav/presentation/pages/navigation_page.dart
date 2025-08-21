@@ -20,37 +20,37 @@ class NavigationPage extends ConsumerWidget {
           const IndoorMapWidget(),
           
           // Top controls
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            left: 16,
-            right: 16,
-            child: Row(
-              children: [
-                // Back button
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => Navigator.of(context).pop(),
-                    tooltip: 'Back',
-                  ),
-                ),
-                const SizedBox(width: 16),
+          // Positioned(
+          //   top: MediaQuery.of(context).padding.top + 16,
+          //   left: 16,
+          //   right: 16,
+          //   child: Row(
+          //     children: [
+          //       // Back button
+          //       Container(
+          //         decoration: BoxDecoration(
+          //           color: Colors.white,
+          //           borderRadius: BorderRadius.circular(25),
+          //           boxShadow: [
+          //             BoxShadow(
+          //               color: Colors.black.withOpacity(0.1),
+          //               blurRadius: 8,
+          //               offset: const Offset(0, 2),
+          //             ),
+          //           ],
+          //         ),
+          //         child: IconButton(
+          //           icon: const Icon(Icons.arrow_back),
+          //           onPressed: () => Navigator.of(context).pop(),
+          //           tooltip: 'Back',
+          //         ),
+          //       ),
+          //       const SizedBox(width: 16),
 
-              ],
-            ),
-          ),
-          
+          //     ],
+          //   ),
+          // ),
+
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 16,

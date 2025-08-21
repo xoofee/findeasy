@@ -27,7 +27,7 @@ class LevelSelectionWidget extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -39,7 +39,7 @@ class LevelSelectionWidget extends ConsumerWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(
           maxHeight: 200, // Limit height to show max ~4 floors
-          minHeight: 120, // Minimum height for better UX
+          minHeight: 60, // Minimum height for better UX
         ),
         child: SingleChildScrollView(
           child: Column(
@@ -63,12 +63,12 @@ class LevelSelectionWidget extends ConsumerWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 60, // Fixed width for compact design
-        height: 40, // Fixed height for each level item
+        width: 30, // Fixed width for compact design
+        height: 30, // Fixed height for each level item
         margin: const EdgeInsets.symmetric(vertical: 2),
         decoration: BoxDecoration(
           color: isSelected ? Colors.orange : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: isSelected ? Colors.orange : Colors.grey.shade300,
             width: 1,
