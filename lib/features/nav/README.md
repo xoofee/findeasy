@@ -35,11 +35,25 @@ This feature allows users to save and restore information about where they parke
 
 ### Viewing Car Location
 
-- When you're at the same place and level where you parked, a red car icon will appear on the map
-- The icon includes a label showing your parking space name
-- The icon is positioned at the center of the current place
+- **When parked at current level**: A red car icon appears on the map with a label showing your parking space name
+- **When parked at different level**: A transparent grey car icon appears with a label showing the level where your car is parked
+- The icon is positioned at the actual parking space location (not the center of the place)
+- This helps you quickly identify which floor your car is on when navigating through the building
 
 ## Technical Implementation
+
+### Visual Indicators
+
+The car parking feature provides different visual cues based on your current location:
+
+1. **Red Car Icon with Parking Space Name**: 
+   - Appears when you're at the same place and level where you parked
+   - Indicates you're on the correct floor to find your car
+
+2. **Transparent Grey Car Icon with Level Text**: 
+   - Appears when you're at the same place but different level
+   - Shows "Level X.X" to indicate which floor your car is on
+   - Helps you navigate to the correct floor
 
 ### Data Model
 

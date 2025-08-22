@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
@@ -76,7 +77,7 @@ class LevelSelectionWidget extends ConsumerWidget {
         ),
         child: Center(
           child: Text(
-            _getLevelDisplayName(level),
+            level.displayName,
             style: TextStyle(
               color: isSelected ? Colors.white : Colors.black87,
               fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
@@ -96,11 +97,6 @@ class LevelSelectionWidget extends ConsumerWidget {
   //   if (level.value > 0) return '${level.value.toInt()}';
   //   return '${level.value.toInt()}'; // e.g., -1 for basement
   // }
-
-  String _getLevelDisplayName(Level level) {
-    if (level.value >= 0) return 'F${level.value.toInt()+1}';
-    return 'B${level.value.toInt().abs()}'; // e.g., -1 for basement
-  }
 
   void _selectLevel(WidgetRef ref, Level level) {
     ref.read(currentLevelProvider.notifier).state = level;

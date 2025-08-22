@@ -1,6 +1,6 @@
 import 'package:easyroute/easyroute.dart';
 
-extension LevelExtension on List<Level> {
+extension LevellListExtension on List<Level> {
   Level getDefaultLevel() {
     final sortedLevels = List<Level>.from(this)..sort();
     
@@ -20,4 +20,11 @@ extension LevelExtension on List<Level> {
     return isNotEmpty ? first : throw StateError('No levels available');
   }
   
+}
+
+extension LevelExtension on Level {
+  String get displayName {
+    if (value >= 0) return 'F${value.toInt()+1}';
+    return 'B${value.toInt().abs()}'; // e.g., -1 for basement
+  }
 }

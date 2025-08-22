@@ -1,12 +1,11 @@
 import 'package:findeasy/core/constants/app_constants.dart';
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
-import 'package:findeasy/features/nav/presentation/widgets/poi_marker_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 
@@ -117,9 +116,8 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         // Route Lines
         PolylineLayer(polylines: _routeLines),
 
-        // if (isCarParkedHere)
+        // Car parking marker
         Consumer( builder: (context, ref, child) {
-          // get the car park location from the provider?
           final carParkingInfo = ref.watch(carParkingInfoProvider);
 
           if (placeMap == null || poiManager == null || currentLevel == null || carParkingInfo == null) return const SizedBox.shrink();
@@ -130,23 +128,49 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
           
           // Check if car is parked at current place and level
           final isCarParkedHere =  carParkingInfo.placeId == placeMap.id &&
-                                  carParkingInfo.levelNumber == currentLevel.value && 
-                                  carParkingPoi.level == currentLevel &&
                                   carParkingInfo.parkingSpaceName == carParkingPoi.name;
+
+          final isCarParkedAtCurrentLevel = carParkingInfo.levelNumber == currentLevel.value && 
+                                          carParkingPoi.level == currentLevel;
 
           if (!isCarParkedHere) return const SizedBox.shrink();
                                             
           return MarkerLayer(markers: [
-                      Marker( // Dest Lot
-                        point: carParkingPoi.position,  // your LatLng variable here
-                        alignment: Alignment.center,
-                        // child: Icon(Icons.location_on, color: Color.fromARGB(150, 255, 0, 0), size: 40),
-                        child: Icon(Icons.directions_car, color: Color.fromARGB(150, 255, 0, 0), size: 32),
-                        rotate: true,
+            Marker(
+              point: carParkingPoi.position,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.directions_car,
+                    color: isCarParkedAtCurrentLevel 
+                        ? Colors.red.withOpacity(0.8) 
+                        : Colors.red.withOpacity(0.3),
+                    size: 32,
+                  ),
+                  if (!isCarParkedAtCurrentLevel)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.grey.withOpacity(0.5)),
                       ),
-
+                      child: Text(
+                        'at ${currentLevel.displayName}',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              rotate: true,
+            ),
           ], rotate: true);
-          return const SizedBox.shrink();
         }),
 
 
