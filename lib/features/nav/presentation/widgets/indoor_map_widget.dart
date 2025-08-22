@@ -5,7 +5,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_marker_widget.dart';
+import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 
 /// Main indoor map widget using flutter_map
@@ -38,10 +40,13 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
   @override
   Widget build(BuildContext context) {
     final asyncMapResult = ref.watch(placeMapProvider).valueOrNull;   // reactive data stream rather than a single future callback.
+
     final placeMap = asyncMapResult?.placeMap;
     final placePosition = placeMap?.position;
+    final poiManager = asyncMapResult?.poiManager;
 
     final currentLevel = ref.watch(currentLevelProvider);
+
 
     // Listen for placeMap changes and animate to new position
     ref.listen<AsyncValue<MapResult?>>(placeMapProvider, (previous, next) {
@@ -103,14 +108,48 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
 
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
           final mapZoom = ref.watch(mapZoomProvider);
-          if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers);
+          if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers, rotate: true);
           return const SizedBox.shrink();
         }),
 
-        // POI Polygons
+        // POI Polygons: parking spaces
         PolygonLayer(polygons: _poiPolygons),
         // Route Lines
         PolylineLayer(polylines: _routeLines),
+
+        // if (isCarParkedHere)
+        Consumer( builder: (context, ref, child) {
+          // get the car park location from the provider?
+          final carParkingInfo = ref.watch(carParkingInfoProvider);
+
+          if (placeMap == null || poiManager == null || currentLevel == null || carParkingInfo == null) return const SizedBox.shrink();
+
+          final carParkingPoi = poiManager.findPoiByName(carParkingInfo.parkingSpaceName);
+          
+          if (carParkingPoi == null) return const SizedBox.shrink();
+          
+          // Check if car is parked at current place and level
+          final isCarParkedHere =  carParkingInfo.placeId == placeMap.id &&
+                                  carParkingInfo.levelNumber == currentLevel.value && 
+                                  carParkingPoi.level == currentLevel &&
+                                  carParkingInfo.parkingSpaceName == carParkingPoi.name;
+
+          if (!isCarParkedHere) return const SizedBox.shrink();
+                                            
+          return MarkerLayer(markers: [
+                      Marker( // Dest Lot
+                        point: carParkingPoi.position,  // your LatLng variable here
+                        alignment: Alignment.center,
+                        // child: Icon(Icons.location_on, color: Color.fromARGB(150, 255, 0, 0), size: 40),
+                        child: Icon(Icons.directions_car, color: Color.fromARGB(150, 255, 0, 0), size: 32),
+                        rotate: true,
+                      ),
+
+          ], rotate: true);
+          return const SizedBox.shrink();
+        }),
+
+
       ],
     );
 

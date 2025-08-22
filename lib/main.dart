@@ -8,6 +8,7 @@ for test purpose use fake data sources and trigger load a fixed place map at sta
 
 
 import 'package:findeasy/app.dart';
+import 'package:findeasy/core/providers/storage_providers.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -53,13 +54,16 @@ class LifecycleWatcher extends ConsumerStatefulWidget {
 class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
     with WidgetsBindingObserver {
   @override
-  void initState() {
+  void initState() async {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshDevicePosition(ref);
     });    
+
+    await ref.read(storageManagerProvider).initializeAppData();
+
   }
 
   @override

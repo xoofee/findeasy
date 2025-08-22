@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:easyroute/easyroute.dart';
-import 'package:findeasy/features/nav/presentation/providers/level_extension.dart';
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 
 void main() {
   group('LevelExtension Tests', () {

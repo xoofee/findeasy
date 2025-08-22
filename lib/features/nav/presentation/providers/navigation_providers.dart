@@ -6,7 +6,7 @@ import 'package:findeasy/features/map/domain/entities/place.dart';
 import 'package:findeasy/features/map/domain/repositories/place_map_repository.dart';
 import 'package:findeasy/features/nav/data/datasources/fake_position_data_source.dart';
 import 'package:findeasy/features/nav/data/repositories/device_position_repository.dart';
-import 'package:findeasy/features/nav/presentation/providers/level_extension.dart';
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:easyroute/easyroute.dart';
@@ -38,20 +38,29 @@ final placeMapRepositoryProvider = Provider((ref) => PlaceMapRepositoryImpl(ref.
 
 // ======= State Providers =======
 
-final currentDevicePositionProvider = StateProvider<latlong2.LatLng?>((ref) => null);
+// final currentDevicePositionProvider = StateProvider<latlong2.LatLng?>((ref) => null);
 
-// final currentPlaceProvider = StateProvider<Place?>((ref) => null);
+// // called when app resumes
+// // do not use a provider that cause side effect: modify another provider
+// Future<void> refreshDevicePosition(WidgetRef ref) async {
+//   final repo = ref.watch(devicePositionRepositoryProvider);
+//   ref.read(currentDevicePositionProvider.notifier).state = await repo.getCurrentPosition();
+// }
 
-// called when app resumes
-// do not use a provider that cause side effect: modify another provider
-Future<void> refreshDevicePosition(WidgetRef ref) async {
+/* Another async way. Use valueOrNull*/
+final currentDevicePositionProvider = FutureProvider<latlong2.LatLng>((ref) async {
   final repo = ref.watch(devicePositionRepositoryProvider);
-  ref.read(currentDevicePositionProvider.notifier).state = await repo.getCurrentPosition();
+  return await repo.getCurrentPosition();
+});
+
+Future<void> refreshDevicePosition(WidgetRef ref) async {
+  ref.invalidate(currentDevicePositionProvider);
 }
+
 
 // Will be refreshed when currentPositionProvider is refreshed
 final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
-  final center = ref.watch(currentDevicePositionProvider);
+  final center = ref.watch(currentDevicePositionProvider).valueOrNull;
   if (center == null) return [];
   final repo = ref.watch(placesRepositoryProvider);
   return repo.getPlaces(center);
@@ -107,9 +116,14 @@ final availableLevelsProvider = Provider<List<Level>>((ref) {
   return mapResult.placeMap.levels;
 });
 
+final poiManagerProvider = Provider<PoiManager?>((ref) {
+  final mapResult = ref.watch(placeMapProvider).value;
+  if (mapResult == null) return null;
 
+  return mapResult.poiManager;
+});
 
-class CurrentLevelController extends StateNotifier<Level?> {
+class CurrentLevelController extends StateNotifier<Level?> {   // StateNotifier must be provided by StateNotifierProvider
   CurrentLevelController(Ref ref) : super(null) {
     ref.listen<List<Level>>(availableLevelsProvider, (prev, next) {
       if (next.isNotEmpty) state = next.getDefaultLevel();
@@ -144,7 +158,7 @@ final currentLevelProvider =
 final mapZoomProvider = StateProvider<double>((ref) => 18.0);
 
 // Map center provider
-final mapCenterProvider = StateProvider<latlong2.LatLng>((ref) => latlong2.LatLng(0, 0));
+// final mapCenterProvider = StateProvider<latlong2.LatLng>((ref) => latlong2.LatLng(0, 0));
 
 // // POI visibility settings provider
 // final poiVisibilitySettingsProvider = StateProvider<Map<String, bool>>((ref) => {
@@ -163,3 +177,4 @@ final mapCenterProvider = StateProvider<latlong2.LatLng>((ref) => latlong2.LatLn
 //   'showEstimatedTime': true,
 // });
 
+final carParkLocationProvider = StateProvider<Poi?>((ref) => null);
