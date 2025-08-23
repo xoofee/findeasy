@@ -101,23 +101,23 @@ class StorageManager {
     }
     
     // Restore non-sensitive data
-    final history = await storage.getNavigationHistory();
-    _ref.read(navigationHistoryProvider.notifier).state = history;
+    // final history = await storage.getNavigationHistory();
+    // _ref.read(navigationHistoryProvider.notifier).state = history;
     
-    final lastLocation = await storage.getLastLocation();
-    _ref.read(lastLocationProvider.notifier).state = lastLocation;
+    // final lastLocation = await storage.getLastLocation();
+    // _ref.read(lastLocationProvider.notifier).state = lastLocation;
     
-    final settings = await storage.getAppSettings();
-    _ref.read(appSettingsProvider.notifier).state = settings;
+    // final settings = await storage.getAppSettings();
+    // _ref.read(appSettingsProvider.notifier).state = settings;
     
-    final recentPlaces = await storage.getRecentPlaces();
-    _ref.read(recentPlacesProvider.notifier).state = recentPlaces;
+    // final recentPlaces = await storage.getRecentPlaces();
+    // _ref.read(recentPlacesProvider.notifier).state = recentPlaces;
     
-    final mapPrefs = await storage.getMapPreferences();
-    _ref.read(mapPreferencesProvider.notifier).state = mapPrefs;
+    // final mapPrefs = await storage.getMapPreferences();
+    // _ref.read(mapPreferencesProvider.notifier).state = mapPrefs;
     
-    final voiceSettings = await storage.getVoiceSettings();
-    _ref.read(voiceSettingsProvider.notifier).state = voiceSettings;
+    // final voiceSettings = await storage.getVoiceSettings();
+    // _ref.read(voiceSettingsProvider.notifier).state = voiceSettings;
   }
 
   /// Save login information

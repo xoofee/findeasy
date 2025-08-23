@@ -116,63 +116,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         // Route Lines
         PolylineLayer(polylines: _routeLines),
 
-        // Car parking marker
-        Consumer( builder: (context, ref, child) {
-          final carParkingInfo = ref.watch(carParkingInfoProvider);
-
-          if (placeMap == null || poiManager == null || currentLevel == null || carParkingInfo == null) return const SizedBox.shrink();
-
-          final carParkingPoi = poiManager.findPoiByName(carParkingInfo.parkingSpaceName);
-          
-          if (carParkingPoi == null) return const SizedBox.shrink();
-          
-          // Check if car is parked at current place and level
-          final isCarParkedHere =  carParkingInfo.placeId == placeMap.id &&
-                                  carParkingInfo.parkingSpaceName == carParkingPoi.name;
-
-          final isCarParkedAtCurrentLevel = carParkingInfo.levelNumber == currentLevel.value && 
-                                          carParkingPoi.level == currentLevel;
-
-          if (!isCarParkedHere) return const SizedBox.shrink();
-                                            
-          return MarkerLayer(markers: [
-            Marker(
-              point: carParkingPoi.position,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.directions_car,
-                    color: isCarParkedAtCurrentLevel 
-                        ? Colors.red.withOpacity(0.8) 
-                        : Colors.red.withOpacity(0.3),
-                    size: 32,
-                  ),
-                  if (!isCarParkedAtCurrentLevel)
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.9),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.grey.withOpacity(0.5)),
-                      ),
-                      child: Text(
-                        'at ${currentLevel.displayName}',
-                        style: const TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              rotate: true,
-            ),
-          ], rotate: true);
-        }),
-
+        _buildCarParkingMarker(placeMap, poiManager, currentLevel),
 
       ],
     );
@@ -194,6 +138,67 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     super.dispose();
   }
 }
+
+Widget _buildCarParkingMarker(PlaceMap? placeMap, PoiManager? poiManager, Level? currentLevel) {
+
+  // Car parking marker
+  return Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+    final carParkingInfo = ref.watch(carParkingInfoProvider);
+
+    if (placeMap == null || poiManager == null || currentLevel == null || carParkingInfo == null) return const SizedBox.shrink();
+
+    final carParkingPoi = poiManager.findPoiByName(carParkingInfo.parkingSpaceName);
+    
+    if (carParkingPoi == null) return const SizedBox.shrink();
+    
+    // Check if car is parked at current place and level
+    final isCarParkedHere =  carParkingInfo.placeId == placeMap.id &&
+                            carParkingInfo.parkingSpaceName == carParkingPoi.name;
+
+    final isCarParkedAtCurrentLevel = carParkingInfo.levelNumber == currentLevel.value && 
+                                    carParkingPoi.level == currentLevel;
+
+    if (!isCarParkedHere) return const SizedBox.shrink();
+                                      
+    return MarkerLayer(markers: [
+      Marker(
+        point: carParkingPoi.position,
+        alignment: Alignment.center,
+        height: isCarParkedAtCurrentLevel? 32 : 46,
+        // child:                   Icon(
+        //       Icons.directions_car,
+        //       color: isCarParkedAtCurrentLevel 
+        //           ? Colors.red.withOpacity(0.8) 
+        //           : Colors.red.withOpacity(0.3),
+        //       size: 32,
+        //     ),
+        child: Column(
+          // mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.directions_car,
+              color: isCarParkedAtCurrentLevel 
+                  ? Colors.red.withOpacity(1.0) 
+                  : Colors.red.withOpacity(0.5),
+              size: 32,
+            ),
+            if (!isCarParkedAtCurrentLevel)  Text(
+                  'at ${currentLevel.displayName}',
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey,
+                  ),
+                ),
+
+          ],
+        ),
+        rotate: true,
+      ),
+    ], rotate: true);
+  });  
+}
+
 
 extension on List<Poi> {
   List<Polygon> toPolygons(Color color, Color borderColor, {double borderStrokeWidth = 2}) {

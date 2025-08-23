@@ -1,12 +1,8 @@
 import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Service for handling secure and non-secure storage operations
+/// Service for handling storage operations using SharedPreferences
 class StorageService {
-  // Secure storage for sensitive data
-  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
   // Storage keys
   static const String _authTokenKey = 'auth_token';
   static const String _refreshTokenKey = 'refresh_token';
@@ -14,7 +10,7 @@ class StorageService {
   static const String _userEmailKey = 'user_email';
   static const String _encryptionKeyKey = 'encryption_key';
   
-  // Non-sensitive data keys (using SharedPreferences)
+  // Non-sensitive data keys
   static const String _navigationHistoryKey = 'navigation_history';
   static const String _lastLocationKey = 'last_location';
   static const String _appSettingsKey = 'app_settings';
@@ -23,59 +19,67 @@ class StorageService {
   static const String _voiceSettingsKey = 'voice_settings';
   static const String _carParkingInfoKey = 'car_parking_info';
 
-  // ===== SECURE STORAGE (Sensitive Data) =====
+  // ===== SHARED PREFERENCES STORAGE =====
 
-  /// Save authentication token securely
+  /// Save authentication token
   Future<void> saveAuthToken(String token) async {
-    await _secureStorage.write(key: _authTokenKey, value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_authTokenKey, token);
   }
 
   /// Get authentication token
   Future<String?> getAuthToken() async {
-    return await _secureStorage.read(key: _authTokenKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_authTokenKey);
   }
 
-  /// Save refresh token securely
+  /// Save refresh token
   Future<void> saveRefreshToken(String token) async {
-    await _secureStorage.write(key: _refreshTokenKey, value: token);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_refreshTokenKey, token);
   }
 
   /// Get refresh token
   Future<String?> getRefreshToken() async {
-    return await _secureStorage.read(key: _refreshTokenKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_refreshTokenKey);
   }
 
-  /// Save user ID securely
+  /// Save user ID
   Future<void> saveUserId(String userId) async {
-    await _secureStorage.write(key: _userIdKey, value: userId);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userIdKey, userId);
   }
 
   /// Get user ID
   Future<String?> getUserId() async {
-    return await _secureStorage.read(key: _userIdKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userIdKey);
   }
 
-  /// Save user email securely
+  /// Save user email
   Future<void> saveUserEmail(String email) async {
-    await _secureStorage.write(key: _userEmailKey, value: email);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_userEmailKey, email);
   }
 
   /// Get user email
   Future<String?> getUserEmail() async {
-    return await _secureStorage.read(key: _userEmailKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_userEmailKey);
   }
 
-  /// Save encryption key securely
+  /// Save encryption key
   Future<void> saveEncryptionKey(String key) async {
-    await _secureStorage.write(key: _encryptionKeyKey, value: key);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_encryptionKeyKey, key);
   }
 
   /// Get encryption key
   Future<String?> getEncryptionKey() async {
-    return await _secureStorage.read(key: _encryptionKeyKey);
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_encryptionKeyKey);
   }
-
-  // ===== SHARED PREFERENCES (Non-sensitive Data) =====
 
   /// Save navigation history
   Future<void> saveNavigationHistory(List<String> history) async {
@@ -221,26 +225,34 @@ class StorageService {
 
   /// Clear all secure data (logout)
   Future<void> clearSecureData() async {
-    await _secureStorage.deleteAll();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_authTokenKey);
+    await prefs.remove(_refreshTokenKey);
+    await prefs.remove(_userIdKey);
+    await prefs.remove(_userEmailKey);
+    await prefs.remove(_encryptionKeyKey);
   }
 
   /// Clear all non-sensitive data
   Future<void> clearNonSensitiveData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    await prefs.remove(_navigationHistoryKey);
+    await prefs.remove(_lastLocationKey);
+    await prefs.remove(_appSettingsKey);
+    await prefs.remove(_recentPlacesKey);
+    await prefs.remove(_mapPreferencesKey);
+    await prefs.remove(_voiceSettingsKey);
+    await prefs.remove(_carParkingInfoKey);
   }
 
   /// Clear all data (complete reset)
   Future<void> clearAllData() async {
-    await Future.wait([
-      clearSecureData(),
-      clearNonSensitiveData(),
-    ]);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 
   /// Get all stored data for debugging
   Future<Map<String, dynamic>> getAllStoredData() async {
-    final secureData = await _secureStorage.readAll();
     final prefs = await SharedPreferences.getInstance();
     final prefsData = prefs.getKeys().fold<Map<String, dynamic>>({}, (map, key) {
       map[key] = prefs.get(key);
@@ -248,7 +260,6 @@ class StorageService {
     });
 
     return {
-      'secure': secureData,
       'preferences': prefsData,
     };
   }

@@ -9,6 +9,8 @@ for test purpose use fake data sources and trigger load a fixed place map at sta
 
 import 'package:findeasy/app.dart';
 import 'package:findeasy/core/providers/storage_providers.dart';
+import 'package:findeasy/features/nav/domain/entities/car_parking_info.dart';
+import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +56,7 @@ class LifecycleWatcher extends ConsumerStatefulWidget {
 class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
     with WidgetsBindingObserver {
   @override
-  void initState() async {
+  void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
@@ -62,7 +64,14 @@ class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
       refreshDevicePosition(ref);
     });    
 
-    await ref.read(storageManagerProvider).initializeAppData();
+    ref.read(storageManagerProvider).initializeAppData();
+
+    ref.read(carParkingInfoProvider.notifier).saveCarParkingInfo(CarParkingInfo(
+      placeId: 0,
+      levelNumber: 0,
+      parkingSpaceName: 'F68',
+      parkedAt: DateTime.now(),
+    ));
 
   }
 
