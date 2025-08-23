@@ -1,3 +1,6 @@
+import 'package:findeasy/features/nav/presentation/widgets/car_parking_button.dart';
+import 'package:findeasy/features/nav/presentation/widgets/routing_button.dart';
+import 'package:findeasy/features/nav/presentation/widgets/search_bar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:findeasy/features/nav/presentation/widgets/indoor_map_widget.dart';
@@ -50,13 +53,39 @@ class NavigationPage extends ConsumerWidget {
           //     ],
           //   ),
           // ),
+           
+           // Search bar at top
+           Positioned(
+            top: 16,
+            //  bottom: MediaQuery.of(context).padding.bottom + 0,
+             left: 0,
+             right: 0,
+             child: const SearchBarWidget(),
+           ),          
 
           Positioned(
-            bottom: MediaQuery.of(context).padding.bottom + 8,
+            bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 8,
-            child: const LevelSelectionWidget(),
+            child: Column(
+              children: [
+                const CarParkingButton(),
+                const SizedBox(height: 4),
+                const LevelSelectionWidget(),
+              ],
+            ),
           ),
-          
+
+                     Positioned(
+             bottom: MediaQuery.of(context).padding.bottom + 16,
+             right: 16,
+             child: Column(
+               children: [
+                 const RoutingButton(),
+                 const SizedBox(height: 4),
+
+               ],
+             ),
+           ),
           // Bottom POI list
           // Positioned(
           //   bottom: 0,

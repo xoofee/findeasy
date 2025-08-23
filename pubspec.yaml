@@ -46,6 +46,7 @@ dependencies:
 
   pinyin: ^3.3.0
   flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
   json_annotation: ^4.9.0
   flutter_dotenv: ^5.2.1
   
@@ -64,6 +65,7 @@ dev_dependencies:
   test: any # Use test for running unit tests
   custom_lint: ^0.7.0
   riverpod_lint: ^2.6.3
+  riverpod_generator: ^2.6.3
   json_serializable: ^6.9.0
   build_runner: ^2.4.13
   freezed: ^2.5.7

@@ -66,12 +66,12 @@ class _LifecycleWatcherState extends ConsumerState<LifecycleWatcher>
 
     ref.read(storageManagerProvider).initializeAppData();
 
-    ref.read(carParkingInfoProvider.notifier).saveCarParkingInfo(CarParkingInfo(
-      placeId: 0,
-      levelNumber: 0,
-      parkingSpaceName: 'F68',
-      parkedAt: DateTime.now(),
-    ));
+    // ref.read(carParkingInfoNotifierProvider.notifier).saveCarParkingInfo(CarParkingInfo(
+    //   placeId: 0,
+    //   levelNumber: 0,
+    //   parkingSpaceName: 'F68',
+    //   parkedAt: DateTime.now(),
+    // ));
 
   }
 

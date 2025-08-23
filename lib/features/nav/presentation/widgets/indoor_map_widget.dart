@@ -143,7 +143,7 @@ Widget _buildCarParkingMarker(PlaceMap? placeMap, PoiManager? poiManager, Level?
 
   // Car parking marker
   return Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
-    final carParkingInfo = ref.watch(carParkingInfoProvider);
+    final carParkingInfo = ref.watch(carParkingInfoNotifierProvider);
 
     if (placeMap == null || poiManager == null || currentLevel == null || carParkingInfo == null) return const SizedBox.shrink();
 

@@ -1,43 +1,40 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:findeasy/features/nav/domain/entities/car_parking_info.dart';
-import 'package:findeasy/core/services/storage_service.dart';
+import 'package:findeasy/core/providers/storage_providers.dart';
 
-/// Provider for the storage service
-final storageServiceProvider = Provider<StorageService>((ref) => StorageService());
+part 'car_parking_providers.g.dart';
 
 /// Provider for car parking information
-final carParkingInfoProvider = StateNotifierProvider<CarParkingInfoNotifier, CarParkingInfo?>(
-  (ref) => CarParkingInfoNotifier(ref.read(storageServiceProvider)),
-);
-
-/// Notifier for managing car parking information
-class CarParkingInfoNotifier extends StateNotifier<CarParkingInfo?> {
-  final StorageService _storageService;
-
-  CarParkingInfoNotifier(this._storageService) : super(null) {
+@riverpod
+class CarParkingInfoNotifier extends _$CarParkingInfoNotifier {
+  @override
+  CarParkingInfo? build() {
     _loadCarParkingInfo();
+    return null;
   }
 
   /// Load car parking info from storage
   Future<void> _loadCarParkingInfo() async {
     try {
-      final parkingData = await _storageService.getCarParkingInfo();
+      final storageService = ref.read(storageServiceProvider);
+      final parkingData = await storageService.getCarParkingInfo();
       if (parkingData != null) {
         state = CarParkingInfo.fromJson(parkingData);
       }
     } catch (e) {
       // Handle error silently, state remains null
-      print('Error loading car parking info: $e');
+      // In production, use proper logging instead of print
     }
   }
 
   /// Save car parking information
   Future<void> saveCarParkingInfo(CarParkingInfo parkingInfo) async {
     try {
-      await _storageService.saveCarParkingInfo(parkingInfo.toJson());
+      final storageService = ref.read(storageServiceProvider);
+      await storageService.saveCarParkingInfo(parkingInfo.toJson());
       state = parkingInfo;
     } catch (e) {
-      print('Error saving car parking info: $e');
+      // In production, use proper logging instead of print
       rethrow;
     }
   }
@@ -45,10 +42,11 @@ class CarParkingInfoNotifier extends StateNotifier<CarParkingInfo?> {
   /// Clear car parking information
   Future<void> clearCarParkingInfo() async {
     try {
-      await _storageService.clearCarParkingInfo();
+      final storageService = ref.read(storageServiceProvider);
+      await storageService.clearCarParkingInfo();
       state = null;
     } catch (e) {
-      print('Error clearing car parking info: $e');
+      // In production, use proper logging instead of print
       rethrow;
     }
   }

@@ -54,7 +54,7 @@ class _CarParkingDialogState extends ConsumerState<CarParkingDialog> {
         parkedAt: DateTime.now(),
       );
 
-      await ref.read(carParkingInfoProvider.notifier).saveCarParkingInfo(parkingInfo);
+      await ref.read(carParkingInfoNotifierProvider.notifier).saveCarParkingInfo(parkingInfo);
       
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -89,7 +89,7 @@ class _CarParkingDialogState extends ConsumerState<CarParkingDialog> {
     });
 
     try {
-      await ref.read(carParkingInfoProvider.notifier).clearCarParkingInfo();
+      await ref.read(carParkingInfoNotifierProvider.notifier).clearCarParkingInfo();
       
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -120,7 +120,7 @@ class _CarParkingDialogState extends ConsumerState<CarParkingDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final currentParkingInfo = ref.watch(carParkingInfoProvider);
+    final currentParkingInfo = ref.watch(carParkingInfoNotifierProvider);
     final isCurrentlyParked = currentParkingInfo != null && 
                               currentParkingInfo.placeId == widget.placeId && 
                               currentParkingInfo.levelNumber == widget.levelNumber;

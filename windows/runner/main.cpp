@@ -25,8 +25,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
   FlutterWindow window(project);
-  Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
+  
+  // Set window size to phone-like vertical dimensions (9:20 aspect ratio)
+  Win32Window::Size size(450, 900);
+  
+  // Center the window on screen
+  Win32Window::Point origin(
+    (GetSystemMetrics(SM_CXSCREEN) - size.width) / 2,
+    (GetSystemMetrics(SM_CYSCREEN) - size.height) / 2
+  );
+  
   if (!window.Create(L"findeasy", origin, size)) {
     return EXIT_FAILURE;
   }
