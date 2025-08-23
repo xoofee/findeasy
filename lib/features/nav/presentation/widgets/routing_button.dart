@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
+import 'package:findeasy/features/nav/presentation/pages/routing_page.dart';
 
 class RoutingButton extends StatelessWidget {
 
@@ -27,7 +28,11 @@ class RoutingButton extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  // TODO: Implement routing functionality
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const RoutingPage(),
+                    ),
+                  );
                 },
                 child: const Column(
                   children: [

@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart' as latlong2;
 
 
 // TODO: the service seems to be overengineered. fixed it
+// TODO: save the zoom, rotation, and center from camera callback in widget
 
 /// Provider for the AnimatedMapController
 /// This should be used in your map widget to provide the controller
@@ -37,7 +38,7 @@ class MapAnimationService {
   Future<void> animateToWithZoom({
     required latlong2.LatLng destination,
     required double targetZoom,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 1),
     Curve curve = Curves.easeInOut,
   }) async {
     await _controller.animateTo(
@@ -52,7 +53,7 @@ class MapAnimationService {
   Future<void> animateToWithRotation({
     required latlong2.LatLng destination,
     required double targetRotation,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 1),
     Curve curve = Curves.easeInOut,
   }) async {
     await _controller.animateTo(
@@ -68,7 +69,7 @@ class MapAnimationService {
     required latlong2.LatLng destination,
     required double targetZoom,
     required double targetRotation,
-    Duration duration = const Duration(seconds: 2),
+    Duration duration = const Duration(seconds: 1),
     Curve curve = Curves.easeInOut,
   }) async {
     await _controller.animateTo(
