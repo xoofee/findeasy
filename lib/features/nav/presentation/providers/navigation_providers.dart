@@ -188,5 +188,3 @@ final mapZoomProvider = StateProvider<double>((ref) => 18.0);
 //   'showDistance': true,
 //   'showEstimatedTime': true,
 // });
-
-final carParkLocationProvider = StateProvider<Poi?>((ref) => null);

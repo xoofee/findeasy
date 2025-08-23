@@ -1,5 +1,6 @@
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
+import 'package:findeasy/features/nav/presentation/utils/car_park_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
@@ -228,7 +229,13 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
             icon: Icons.directions_car,
             text: '車停在這',
             onPressed: () {
-              // TODO: Implement parking at this POI
+              // Get current place from the provider
+              
+              // Use the reusable car park utility
+              CarParkUtils.setCarParkInfo(
+                context: context,
+                parkingPoi: poi,
+              );
             },
           ),
         if (poi.type == PoiType.parkingSpace) const SizedBox(width: 8),
