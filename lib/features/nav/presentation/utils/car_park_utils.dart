@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,10 @@ class CarParkUtils {
     final message = customMessage ?? 
         '您的車停在${currentPlace.name}${parkingPoi.level.displayName}${parkingPoi.name}';
     
+    ref.read(mapAnimationProvider.notifier).animateToPlace(
+      parkingPoi.position,
+    );
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(

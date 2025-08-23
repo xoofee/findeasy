@@ -12,6 +12,7 @@ import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/data/repositories/map_repository.dart';
 import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
 
 
 // ======= Dependency Providers =======

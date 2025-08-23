@@ -156,6 +156,13 @@ class SearchController extends StateNotifier<SearchState> {
     state = const SearchState();
   }
 
+  /// Clear search results and notify input widgets to clear their text
+  void clearSearchAndInput() {
+    state = const SearchState();
+    // Notify that input should be cleared
+    state = state.copyWith(query: ''); // This will trigger a rebuild
+  }
+
   /// Get current search results
   List<Poi> get currentResults => state.results;
 

@@ -62,7 +62,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     final searchController = ref.read(search_providers.searchControllerProvider.notifier);
     
     if (query.isEmpty) {
-      searchController.clearSearch();
+      searchController.clearSearchAndInput();
     } else {
       // Debounce search to avoid too many API calls
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -76,19 +76,26 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
   void _onPoiSelected(Poi poi) {
     _searchController.text = poi.name;
     _searchFocusNode.unfocus();
-    ref.read(search_providers.searchControllerProvider.notifier).clearSearch();
+    ref.read(search_providers.searchControllerProvider.notifier).clearSearchAndInput();
     widget.onPoiSelected?.call(poi);
   }
 
   void _onCleared() {
     _searchController.clear();
-    ref.read(search_providers.searchControllerProvider.notifier).clearSearch();
+    ref.read(search_providers.searchControllerProvider.notifier).clearSearchAndInput();
     widget.onCleared?.call();
   }
 
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(search_providers.searchControllerProvider);
+
+    // Listen for changes in search query and clear input if query is cleared externally
+    if (searchState.query.isEmpty && _searchController.text.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _searchController.clear();
+      });
+    }
 
     return Column(
       mainAxisSize: MainAxisSize.min,

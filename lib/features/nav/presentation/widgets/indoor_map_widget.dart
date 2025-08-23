@@ -8,6 +8,8 @@ import 'package:findeasy/features/nav/presentation/providers/navigation_provider
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
+// import 'package:findeasy/features/nav/presentation/widgets/map_controls_widget.dart';
 
 /// Main indoor map widget using flutter_map
 class IndoorMapWidget extends ConsumerStatefulWidget {
@@ -38,6 +40,13 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
 
   @override
   Widget build(BuildContext context) {
+    // Provide the AnimatedMapController to the provider system
+  
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Use the map animation service instead of direct controller access
+        ref.read(animatedMapControllerProvider.notifier).state = _animatedMapController;
+    });
+    
     final asyncMapResult = ref.watch(placeMapProvider).valueOrNull;   // reactive data stream rather than a single future callback.
 
     final placeMap = asyncMapResult?.placeMap;
@@ -48,15 +57,16 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     final placeMatched = ref.watch(placeMatchedProvider.notifier).state;
 
 
-    // Listen for placeMap changes and animate to new position
+    // Listen for placeMap changes and animate to new position using the service
     ref.listen<AsyncValue<MapResult?>>(placeMapProvider, (previous, next) {
       final previousPlaceMap = previous?.valueOrNull?.placeMap;
       final nextPlaceMap = next.valueOrNull?.placeMap;
       
       if (nextPlaceMap != null && nextPlaceMap != previousPlaceMap) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          _animatedMapController.animateTo(
-            dest: nextPlaceMap.position, 
+          // Use the map animation service instead of direct controller access
+          ref.read(mapAnimationProvider.notifier).animateToPlace(
+            nextPlaceMap.position,
           );
         });
       }
@@ -83,16 +93,17 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     // Build route lines
     // _buildRouteLines(routes, routeGeometry);
 
-    return FlutterMap(
-      mapController: _animatedMapController.mapController,
-      options: MapOptions(
-        initialCenter: placePosition ?? AppConstants.defaultMapCenter,
-        initialZoom: 18.0,
-        maxZoom: 22.0,
-        minZoom: 16.0,
-        onPositionChanged: (MapCamera camera, bool hasGesture) {
-          ref.read(mapZoomProvider.notifier).state = camera.zoom;
-        },           
+    return 
+        FlutterMap(
+          mapController: _animatedMapController.mapController,
+          options: MapOptions(
+            initialCenter: placePosition ?? AppConstants.defaultMapCenter,
+            initialZoom: 18.0,
+            maxZoom: 22.0,
+            minZoom: 16.0,
+            onPositionChanged: (MapCamera camera, bool hasGesture) {
+              ref.read(mapZoomProvider.notifier).state = camera.zoom;
+            },           
 
         // onMapReady: () => _onMapReady(placeMap),
       ),

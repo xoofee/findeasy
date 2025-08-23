@@ -115,7 +115,7 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
                   //   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () => searchController.clearSearch(),
+                    onPressed: () => searchController.clearSearchAndInput(),
                     icon: const Icon(Icons.close),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(
@@ -236,6 +236,9 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
                 context: context,
                 parkingPoi: poi,
               );
+
+              // dismiss the search results widget
+              ref.read(search_providers.searchControllerProvider.notifier).clearSearchAndInput();
             },
           ),
         if (poi.type == PoiType.parkingSpace) const SizedBox(width: 8),
