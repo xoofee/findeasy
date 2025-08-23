@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
@@ -15,7 +16,7 @@ class PoiSearchInput extends ConsumerStatefulWidget {
 
   const PoiSearchInput({
     super.key,
-    this.hintText = '查找車位、店鋪...',
+    required this.hintText,
     this.initialValue,
     this.onPoiSelected,
     this.onCleared,
@@ -196,7 +197,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
       return Padding(
         padding: const EdgeInsets.all(16),
         child: Text(
-          'Error: ${searchState.error}',
+          '${searchState.error}',
           style: TextStyle(color: Colors.red[600], fontSize: 12),
         ),
       );
@@ -242,28 +243,31 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
         style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
       ),
       subtitle: Text(
-        '${poi.type.replaceAll('amenity:', '').replaceAll('shop:', '')} • Level ${poi.level.value}',
+        '${poi.type.name} • ${poi.level.displayName}',
         style: TextStyle(color: Colors.grey[600], fontSize: 11),
       ),
       onTap: () => _onPoiSelected(poi),
     );
   }
 
-  Color _getPoiColor(String type) {
-    if (type.contains('parking')) return Colors.blue;
-    if (type.contains('shop')) return Colors.green;
-    if (type.contains('elevator')) return Colors.orange;
-    if (type.contains('toilet')) return Colors.purple;
-    if (type.contains('cafe') || type.contains('restaurant')) return Colors.red;
+  Color _getPoiColor(PoiType type) {
+    if (type == PoiType.parkingSpace) return Colors.blue;
+    if (type == PoiType.shop) return Colors.green;
+    if (type == PoiType.elevator) return Colors.orange;
+    if (type == PoiType.toilet) return Colors.purple;
+    if (type == PoiType.stairs) return Colors.brown;
+    if (type == PoiType.escalator) return Colors.indigo;
+    if (type == PoiType.entrance || type == PoiType.exit) return Colors.green;
     return Colors.grey;
   }
 
-  IconData _getPoiIcon(String type) {
-    if (type.contains('parking')) return Icons.local_parking;
-    if (type.contains('shop')) return Icons.shopping_bag;
-    if (type.contains('elevator')) return Icons.elevator;
-    if (type.contains('toilet')) return Icons.wc;
-    if (type.contains('cafe') || type.contains('restaurant')) return Icons.restaurant;
+  IconData _getPoiIcon(PoiType type) {
+    if (type == PoiType.parkingSpace) return Icons.local_parking;
+    if (type == PoiType.shop) return Icons.shopping_bag;
+    if (type == PoiType.elevator) return Icons.elevator;
+    if (type == PoiType.toilet) return Icons.wc;
+    if (type == PoiType.cafe) return Icons.restaurant;
+    if (type == PoiType.restaurant) return Icons.restaurant;
     return Icons.place;
   }
 }

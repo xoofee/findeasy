@@ -58,9 +58,14 @@ when use type in search bar,
 2 search result list should be paginated. That is, this list should be shown under the search input textbox, only display the first future list. when use slide the list, show more. preload the next page to enhance experience.
 
 
-
 the search feature may be used in other pages, like routing page for input start and end poi.
 
+### car parking location set
+
+for every row of the search result, show two button at the right, each button with icon and text under the icon.
+
+One button is with a direction icon with text 到這去
+one button is a car icon with text 車停在這 if the poi type is parking_space.
 ## Navigation
 
 ### Localization

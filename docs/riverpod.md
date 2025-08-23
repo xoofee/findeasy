@@ -78,7 +78,7 @@ class LocationWidget extends ConsumerWidget {
     }
     
     if (locationState.error != null) {
-      return Text('Error: ${locationState.error}');
+      return Text('${locationState.error}');
     }
     
     if (locationState.position != null) {

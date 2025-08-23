@@ -1,10 +1,12 @@
+import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/search_providers.dart' as search_providers;
 
 /// Widget for displaying search results with pagination
-class SearchResultsWidget extends ConsumerWidget {
+class SearchResultsWidget extends ConsumerStatefulWidget {
   final VoidCallback? onPoiSelected;
   final bool showCloseButton;
 
@@ -15,7 +17,52 @@ class SearchResultsWidget extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SearchResultsWidget> createState() => _SearchResultsWidgetState();
+}
+
+class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
+  final ScrollController _scrollController = ScrollController();
+  bool _isLoadingMore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+      // Load more when user is within 200 pixels of the bottom
+      _loadMoreIfNeeded();
+    }
+  }
+
+  void _loadMoreIfNeeded() async {
+    final searchState = ref.read(search_providers.searchControllerProvider);
+    final searchController = ref.read(search_providers.searchControllerProvider.notifier);
+    
+    if (!_isLoadingMore && searchState.hasMore && !searchState.isLoading) {
+      setState(() {
+        _isLoadingMore = true;
+      });
+      
+      await searchController.loadMore();
+      
+      setState(() {
+        _isLoadingMore = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final searchState = ref.watch(search_providers.searchControllerProvider);
     final searchController = ref.read(search_providers.searchControllerProvider.notifier);
 
@@ -42,13 +89,14 @@ class SearchResultsWidget extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header with close button
-          if (showCloseButton)
+          if (widget.showCloseButton)
             Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Text(
-                    '搜索結果 (${searchState.results.length}/${searchState.totalResults})',
+                    '搜索結果 (${searchState.totalResults})',
+                    // '搜索結果 (${searchState.results.length}/${searchState.totalResults})',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -84,12 +132,13 @@ class SearchResultsWidget extends ConsumerWidget {
                 minHeight: 50,
               ),
               child: ListView.builder(
+                controller: _scrollController,
                 shrinkWrap: true,
                 itemCount: searchState.results.length + (searchState.hasMore ? 1 : 0),
                 itemBuilder: (context, index) {
                   if (index == searchState.results.length) {
-                    // Load more button
-                    return _buildLoadMoreButton(searchController, searchState);
+                    // Loading indicator at bottom
+                    return _buildLoadingIndicator(searchState);
                   }
                   
                   final poi = searchState.results[index];
@@ -108,7 +157,7 @@ class SearchResultsWidget extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(16),
               child: Text(
-                'Error: ${searchState.error}',
+                '${searchState.error}',
                 style: TextStyle(color: Colors.red[600]),
               ),
             )
@@ -143,14 +192,14 @@ class SearchResultsWidget extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            poi.type.replaceAll('amenity:', '').replaceAll('shop:', ''),
+            poi.type.name,
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,
             ),
           ),
           Text(
-            'Level ${poi.level.value}',
+            'Level ${poi.level.displayName}',
             style: TextStyle(
               color: Colors.grey[500],
               fontSize: 11,
@@ -159,46 +208,66 @@ class SearchResultsWidget extends ConsumerWidget {
         ],
       ),
       onTap: () {
-        onPoiSelected?.call();
+        widget.onPoiSelected?.call();
         // You can add additional logic here like selecting the POI
       },
     );
   }
 
-  Widget _buildLoadMoreButton(search_providers.SearchController searchController, search_providers.SearchState searchState) {
+  Widget _buildLoadingIndicator(search_providers.SearchState searchState) {
+    if (!searchState.hasMore) {
+      return const SizedBox.shrink();
+    }
+    
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Center(
-        child: ElevatedButton(
-          onPressed: searchState.isLoading ? null : () => searchController.loadMore(),
-          child: searchState.isLoading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('載入更多'),
-              // : Text('載入更多 (${searchState.totalResults - searchState.results.length} 項)'),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (searchState.isLoading || _isLoadingMore)
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            else
+              const Icon(
+                Icons.keyboard_arrow_down,
+                color: Colors.grey,
+                size: 20,
+              ),
+            const SizedBox(width: 8),
+            Text(
+              searchState.isLoading || _isLoadingMore 
+                ? '載入中...' 
+                : '滑動載入更多',
+              style: TextStyle(
+                color: Colors.grey[600],
+                fontSize: 12,
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Color _getPoiColor(String type) {
-    if (type.contains('parking')) return Colors.blue;
-    if (type.contains('shop')) return Colors.green;
-    if (type.contains('elevator')) return Colors.orange;
-    if (type.contains('toilet')) return Colors.purple;
-    if (type.contains('cafe') || type.contains('restaurant')) return Colors.red;
+  Color _getPoiColor(PoiType type) {    // TODO: eliminate duplication with poi_search_input.dart
+    if (type == PoiType.parkingSpace) return Colors.blue;
+    if (type == PoiType.shop) return Colors.green;
+    if (type == PoiType.elevator) return Colors.orange;
+    if (type == PoiType.toilet) return Colors.purple;
+    if (type == PoiType.cafe || type == PoiType.restaurant) return Colors.red;
     return Colors.grey;
   }
 
-  IconData _getPoiIcon(String type) {
-    if (type.contains('parking')) return Icons.local_parking;
-    if (type.contains('shop')) return Icons.shopping_bag;
-    if (type.contains('elevator')) return Icons.elevator;
-    if (type.contains('toilet')) return Icons.wc;
-    if (type.contains('cafe') || type.contains('restaurant')) return Icons.restaurant;
+  IconData _getPoiIcon(PoiType type) {
+    if (type == PoiType.parkingSpace) return Icons.local_parking;
+    if (type == PoiType.shop) return Icons.shopping_bag;
+    if (type == PoiType.elevator) return Icons.elevator;
+    if (type == PoiType.toilet) return Icons.wc;
+    if (type == PoiType.cafe || type == PoiType.restaurant) return Icons.restaurant;
     return Icons.place;
   }
 }

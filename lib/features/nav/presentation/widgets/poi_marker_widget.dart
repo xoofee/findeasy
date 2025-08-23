@@ -77,25 +77,24 @@ class PoiMarkerWidget extends ConsumerWidget {
   }
 
   IconData _getPoiIcon() {
-    if (poi.type.contains('parking_space')) return Icons.local_parking;
-    if (poi.type.contains('shop')) return Icons.shopping_bag;
-    if (poi.type.contains('elevator')) return Icons.elevator;
-    if (poi.type.contains('toilet')) return Icons.wc;
-    if (poi.type.contains('stairs')) return Icons.stairs;
-    if (poi.type.contains('escalator')) return Icons.escalator;
-    if (poi.type.contains('entrance')) return Icons.door_front_door;
-    if (poi.type.contains('exit')) return Icons.exit_to_app;
+    if (poi.type == PoiType.parkingSpace) return Icons.local_parking;
+    if (poi.type == PoiType.shop) return Icons.shopping_bag;
+    if (poi.type == PoiType.elevator) return Icons.elevator;
+    if (poi.type == PoiType.toilet) return Icons.wc;
+    if (poi.type == PoiType.stairs) return Icons.stairs;
+    if (poi.type == PoiType.escalator) return Icons.escalator;
+    if (poi.type == PoiType.entrance || poi.type == PoiType.exit) return Icons.door_front_door;
     return Icons.location_on;
   }
 
   Color _getPoiColor() {
-    if (poi.type.contains('parking_space')) return Colors.blue;
-    if (poi.type.contains('shop')) return Colors.purple;
-    if (poi.type.contains('elevator')) return Colors.orange;
-    if (poi.type.contains('toilet')) return Colors.teal;
-    if (poi.type.contains('stairs')) return Colors.brown;
-    if (poi.type.contains('escalator')) return Colors.indigo;
-    if (poi.type.contains('entrance') || poi.type.contains('exit')) return Colors.green;
+    if (poi.type == PoiType.parkingSpace) return Colors.blue;
+    if (poi.type == PoiType.shop) return Colors.purple;
+    if (poi.type == PoiType.elevator) return Colors.orange;
+    if (poi.type == PoiType.toilet) return Colors.teal;
+    if (poi.type == PoiType.stairs) return Colors.brown;
+    if (poi.type == PoiType.escalator) return Colors.indigo;
+    if (poi.type == PoiType.entrance || poi.type == PoiType.exit) return Colors.green;
     return Colors.grey;
   }
 }

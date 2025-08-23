@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/system_menu_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_search_input.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_results_widget.dart';
@@ -8,13 +9,11 @@ import 'package:easyroute/easyroute.dart';
 class SearchBarWidget extends ConsumerStatefulWidget {
   final ValueChanged<Poi>? onPoiSelected;
   final bool showResults;
-  final String hintText;
 
   const SearchBarWidget({
     super.key,
     this.onPoiSelected,
     this.showResults = true,
-    this.hintText = '查找車位、店鋪...',
   });
 
   @override
@@ -24,6 +23,14 @@ class SearchBarWidget extends ConsumerStatefulWidget {
 class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
   @override
   Widget build(BuildContext context) {
+    final currentPlace = ref.watch(currentPlaceProvider);
+    late String hintText;
+    if (currentPlace == null) {
+      hintText = '當前位置不支持';
+    } else {
+      hintText = '查找車位、店鋪 (${currentPlace.name})'; // not easy to make the place name bold
+    }
+    
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -56,7 +63,7 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
                 // POI Search Input (replaces the old TextField)
                 Expanded(
                   child: PoiSearchInput(
-                    hintText: widget.hintText,
+                    hintText: hintText,
                     onPoiSelected: widget.onPoiSelected,
                     onCleared: () {
                       // Clear search when needed
@@ -79,7 +86,7 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
                     icon: Icon(
                       Icons.mic,
                       color: Colors.blue[600],
-                      size: 28,
+                      size: 26,
                     ),
                     padding: const EdgeInsets.all(8),
                     constraints: const BoxConstraints(

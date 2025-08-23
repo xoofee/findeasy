@@ -13,7 +13,7 @@ class SystemMenuButton extends ConsumerWidget {
         icon: Icon(
           Icons.more_vert,
           color: Colors.grey[600],
-          size: 24,
+          size: 26,
         ),
         padding: const EdgeInsets.all(8),
         constraints: const BoxConstraints(
