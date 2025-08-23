@@ -48,12 +48,20 @@ class SearchResultsWidget extends ConsumerWidget {
               child: Row(
                 children: [
                   Text(
-                    '搜索結果 (${searchState.results.length})',
+                    '搜索結果 (${searchState.results.length}/${searchState.totalResults})',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
                   ),
+                  // if (searchState.hasMore)
+                  //   Text(
+                  //     '還有 ${searchState.totalResults - searchState.results.length} 項結果',
+                  //     style: TextStyle(
+                  //       color: Colors.grey[600],
+                  //       fontSize: 12,
+                  //     ),
+                  //   ),
                   const Spacer(),
                   IconButton(
                     onPressed: () => searchController.clearSearch(),
@@ -169,7 +177,8 @@ class SearchResultsWidget extends ConsumerWidget {
                   height: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Load More'),
+              : const Text('載入更多'),
+              // : Text('載入更多 (${searchState.totalResults - searchState.results.length} 項)'),
         ),
       ),
     );

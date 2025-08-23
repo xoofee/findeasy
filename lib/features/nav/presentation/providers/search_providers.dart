@@ -10,6 +10,7 @@ class SearchState {
   final bool hasMore;
   final int currentPage;
   final int pageSize;
+  final int totalResults;
   final String? error;
 
   const SearchState({
@@ -19,6 +20,7 @@ class SearchState {
     this.hasMore = true,
     this.currentPage = 0,
     this.pageSize = 10,
+    this.totalResults = 0,
     this.error,
   });
 
@@ -29,6 +31,7 @@ class SearchState {
     bool? hasMore,
     int? currentPage,
     int? pageSize,
+    int? totalResults,
     String? error,
   }) {
     return SearchState(
@@ -38,6 +41,7 @@ class SearchState {
       hasMore: hasMore ?? this.hasMore,
       currentPage: currentPage ?? this.currentPage,
       pageSize: pageSize ?? this.pageSize,
+      totalResults: totalResults ?? this.totalResults,
       error: error ?? this.error,
     );
   }
@@ -116,7 +120,7 @@ class SearchController extends StateNotifier<SearchState> {
       });
 
       // Apply pagination
-      final startIndex = reset ? 0 : state.currentPage * state.pageSize;
+      final startIndex = reset ? 0 : state.results.length;
       final endIndex = startIndex + state.pageSize;
       final pageResults = filteredPois.skip(startIndex).take(state.pageSize).toList();
 
@@ -128,6 +132,7 @@ class SearchController extends StateNotifier<SearchState> {
         results: newResults,
         currentPage: reset ? 0 : state.currentPage + 1,
         hasMore: hasMore,
+        totalResults: filteredPois.length,
         isLoading: false,
         error: null,
       );
@@ -182,4 +187,9 @@ final searchLoadingProvider = Provider<bool>((ref) {
 /// Provider for search has more state
 final searchHasMoreProvider = Provider<bool>((ref) {
   return ref.watch(searchControllerProvider).hasMore;
+});
+
+/// Provider for search total results count
+final searchTotalResultsProvider = Provider<int>((ref) {
+  return ref.watch(searchControllerProvider).totalResults;
 });
