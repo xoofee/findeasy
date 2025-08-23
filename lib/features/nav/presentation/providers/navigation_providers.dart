@@ -57,13 +57,12 @@ Future<void> refreshDevicePosition(WidgetRef ref) async {
   ref.invalidate(currentDevicePositionProvider);
 }
 
-
 // Will be refreshed when currentPositionProvider is refreshed
-final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
+final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
   final center = ref.watch(currentDevicePositionProvider).valueOrNull;
-  if (center == null) return [];
+  if (center == null) return null;  // device position is not ready yet
   final repo = ref.watch(placesRepositoryProvider);
-  return repo.getPlaces(center);
+  return await repo.getPlaces(center);  // should await or not?
 });
 
 // final nearestPlaceProvider = StateProvider<Place?>( (ref) {
@@ -80,11 +79,13 @@ final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
 
 class CurrentPlaceController extends StateNotifier<Place?> {
   CurrentPlaceController(Ref ref) : super(null) {
-    ref.listen<AsyncValue<List<Place>>>(nearbyPlacesProvider, (prev, next) {
+    ref.listen<AsyncValue<List<Place>?>>(nearbyPlacesProvider, (prev, next) {
       next.whenData((places) {
         // without compare state, the assignment will cause placeMapProvider
         // to rebuild without select magic
-        if (places.isNotEmpty && state != places.first) state = places.first;
+        if (places == null) return;   // error in get places
+        if (places.isEmpty) state = null; // get empty list: no place matched
+        if (state != places.first) state = places.first;
       });
     });
   }
@@ -94,6 +95,17 @@ final currentPlaceProvider =
     StateNotifierProvider<CurrentPlaceController, Place?>(
   (ref) => CurrentPlaceController(ref),
 );
+
+// final currentPlaceProvider = StateProvider<Place?>((ref) {
+//   final places = ref.watch(nearbyPlacesProvider).valueOrNull;
+//   if (places == null || places.isEmpty) return null;
+//   return places.first;
+// });
+
+final placeMatchedProvider = StateProvider<bool>((ref) {
+  final place = ref.watch(currentPlaceProvider);
+  return place != null;
+});
 
 // currentPlaceProvider may be updated by gps or manual selection
 final placeMapProvider = FutureProvider<MapResult?>((ref) async {
@@ -110,14 +122,14 @@ final placeMapProvider = FutureProvider<MapResult?>((ref) async {
 
 // Extract levels from the fetched placeMap
 final availableLevelsProvider = Provider<List<Level>>((ref) {
-  final mapResult = ref.watch(placeMapProvider).value;
+  final mapResult = ref.watch(placeMapProvider).valueOrNull;    // TODO: how to do with error?
   if (mapResult == null) return [];
 
   return mapResult.placeMap.levels;
 });
 
 final poiManagerProvider = Provider<PoiManager?>((ref) {
-  final mapResult = ref.watch(placeMapProvider).value;
+  final mapResult = ref.watch(placeMapProvider).valueOrNull;    // TODO: how to do with error?
   if (mapResult == null) return null;
 
   return mapResult.poiManager;

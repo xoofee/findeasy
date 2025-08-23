@@ -45,6 +45,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     final poiManager = asyncMapResult?.poiManager;
 
     final currentLevel = ref.watch(currentLevelProvider);
+    final placeMatched = ref.watch(placeMatchedProvider.notifier).state;
 
 
     // Listen for placeMap changes and animate to new position
@@ -112,12 +113,13 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         }),
 
         // POI Polygons: parking spaces
-        PolygonLayer(polygons: _poiPolygons),
+
+        if (placeMatched) ...[PolygonLayer(polygons: _poiPolygons),
         // Route Lines
         PolylineLayer(polylines: _routeLines),
 
         _buildCarParkingMarker(placeMap, poiManager, currentLevel),
-
+        ]
       ],
     );
 

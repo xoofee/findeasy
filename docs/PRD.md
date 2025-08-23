@@ -51,6 +51,16 @@ use self-built ota server if necessary. (user cannot access the app market we su
 - indoor map rendering. 2d for now and 3d in the future. May turn on or turn off the outdoor map as base layer.
 - show poi and road/ways. Show parking space name (like B1-103, E124) when zoom factor exceed certain value. Show less poi names (including shops, ...) if screen cannot hold
 
+### POI SEARCH
+
+when use type in search bar, 
+1 use poiManager to search with name
+2 search result list should be paginated. That is, this list should be shown under the search input textbox, only display the first future list. when use slide the list, show more. preload the next page to enhance experience.
+
+
+
+the search feature may be used in other pages, like routing page for input start and end poi.
+
 ## Navigation
 
 ### Localization
