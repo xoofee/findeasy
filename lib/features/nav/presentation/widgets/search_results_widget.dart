@@ -9,11 +9,13 @@ import 'package:findeasy/features/nav/presentation/providers/search_providers.da
 class SearchResultsWidget extends ConsumerStatefulWidget {
   final VoidCallback? onPoiSelected;
   final bool showCloseButton;
+  final bool showActionButtons;
 
   const SearchResultsWidget({
     super.key,
     this.onPoiSelected,
     this.showCloseButton = true,
+    this.showActionButtons = true,
   });
 
   @override
@@ -207,10 +209,68 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
           ),
         ],
       ),
+      trailing: widget.showActionButtons ? _buildActionButtons(poi) : null,
       onTap: () {
         widget.onPoiSelected?.call();
         // You can add additional logic here like selecting the POI
       },
+    );
+  }
+
+  Widget _buildActionButtons(Poi poi) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Direction button - always show
+        // Parking button - only show for parking spaces
+        if (poi.type == PoiType.parkingSpace)
+          _buildActionButton(
+            icon: Icons.directions_car,
+            text: '車停在這',
+            onPressed: () {
+              // TODO: Implement parking at this POI
+            },
+          ),
+        if (poi.type == PoiType.parkingSpace) const SizedBox(width: 8),
+        _buildActionButton(
+          icon: Icons.directions,
+          text: '到這去',
+          onPressed: () {
+            // TODO: Implement navigation to this POI
+          },
+        ),
+
+      ],
+    );
+  }
+
+  Widget _buildActionButton({
+    required IconData icon,
+    required String text,
+    required VoidCallback onPressed,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: Colors.blue.shade700,
+            size: 28,
+          ),
+          const SizedBox(height: 2),
+          Text(
+            text,
+            style: TextStyle(
+              color: Colors.blue.shade700,
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 

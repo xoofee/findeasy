@@ -103,7 +103,9 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
         
         // Search results (show below search bar)
         if (widget.showResults)
-          const SearchResultsWidget(),
+          const SearchResultsWidget(
+            showActionButtons: true,
+          ),
       ],
     );
   }
