@@ -1,4 +1,5 @@
 import 'package:findeasy/core/constants/app_constants.dart';
+import 'package:findeasy/features/nav/presentation/providers/routing_providers.dart';
 import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -130,7 +131,12 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         PolylineLayer(polylines: _routeLines),
 
         _buildCarParkingMarker(placeMap, poiManager, currentLevel),
-        ]
+        ],
+        Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+          final route = ref.watch(routeBetweenPoisProvider);
+          if (route == null) return const SizedBox.shrink();
+          return PolylineLayer(polylines: [Polyline(points: route.geometry.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
+        }),
       ],
     );
 

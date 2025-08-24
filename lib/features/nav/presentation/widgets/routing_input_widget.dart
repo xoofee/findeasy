@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/providers/routing_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_results_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -284,8 +285,8 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-
-
+                  ref.read(originPoiProvider.notifier).state = _startPoi;
+                  ref.read(destinationPoiProvider.notifier).state = _endPoi;
                 },
                 child: Row(
                   children: [
