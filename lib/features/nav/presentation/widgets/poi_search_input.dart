@@ -13,6 +13,7 @@ class PoiSearchInput extends ConsumerStatefulWidget {
   final VoidCallback? onCleared;
   final bool showBorder;
   final FocusNode? focusNode;
+  final TextEditingController? textController; // Add text controller parameter
 
   const PoiSearchInput({
     super.key,
@@ -22,6 +23,7 @@ class PoiSearchInput extends ConsumerStatefulWidget {
     this.onCleared,
     this.showBorder = true,
     this.focusNode,
+    this.textController, // Add to constructor
   });
 
   @override
@@ -29,7 +31,7 @@ class PoiSearchInput extends ConsumerStatefulWidget {
 }
 
 class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
-  final TextEditingController _searchController = TextEditingController();
+  late final TextEditingController _searchController;
   late final FocusNode _searchFocusNode;
   bool _isFocused = false;
   bool _isProgrammaticChange = false; // Flag to prevent search on programmatic changes
@@ -41,7 +43,15 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
   void initState() {
     super.initState();
     _searchFocusNode = widget.focusNode ?? FocusNode();
-    _searchController.text = widget.initialValue ?? '';
+    
+    // Use external text controller if provided, otherwise create internal one
+    if (widget.textController != null) {
+      _searchController = widget.textController!;
+    } else {
+      _searchController = TextEditingController();
+      _searchController.text = widget.initialValue ?? '';
+    }
+    
     _lastUserInput = _searchController.text;
     _shouldShowRed = true; // Start with red text color
     _searchController.addListener(_onSearchChanged);
@@ -53,7 +63,12 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     _colorChangeTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchFocusNode.removeListener(_onFocusChanged);
-    _searchController.dispose();
+    
+    // Only dispose if it's our internal controller
+    if (widget.textController == null) {
+      _searchController.dispose();
+    }
+    
     // Only dispose if it's our internal focus node
     if (widget.focusNode == null) {
       _searchFocusNode.dispose();
@@ -159,13 +174,6 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen for changes in initialValue and update the text controller
-    if (widget.initialValue != null && _searchController.text != widget.initialValue) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        updateTextWithoutSearch(widget.initialValue!);
-      });
-    }
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

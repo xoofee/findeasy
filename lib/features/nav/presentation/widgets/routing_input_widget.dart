@@ -39,6 +39,8 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   Poi? _endPoi;
   final FocusNode _startFocusNode = FocusNode();
   final FocusNode _destinationFocusNode = FocusNode();
+  final TextEditingController _startTextController = TextEditingController();
+  final TextEditingController _destinationTextController = TextEditingController();
   String? _lastFocusedField; // Track which field was last focused
 
   @override
@@ -47,10 +49,12 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
     // Set initial start point if provided
     if (widget.initialStartPoint != null) {
       _startPoi = widget.initialStartPoint;
+      _startTextController.text = widget.initialStartPoint!.name;
     }
     // Set initial destination if provided
     if (widget.initialDestination != null) {
       _endPoi = widget.initialDestination;
+      _destinationTextController.text = widget.initialDestination!.name;
     }
     
     // Add focus listeners to track which field was last focused
@@ -73,12 +77,15 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   void dispose() {
     _startFocusNode.dispose();
     _destinationFocusNode.dispose();
+    _startTextController.dispose();
+    _destinationTextController.dispose();
     super.dispose();
   }
 
   void _onStartPoiSelected(Poi poi) {
     setState(() {
       _startPoi = poi;
+      _startTextController.text = poi.name;
     });
     widget.onStartPoiSelected?.call(poi);
   }
@@ -86,6 +93,7 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   void _onEndPoiSelected(Poi poi) {
     setState(() {
       _endPoi = poi;
+      _destinationTextController.text = poi.name;
     });
     widget.onEndPoiSelected?.call(poi);
   }
@@ -112,8 +120,11 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   void _swapPois() {
     setState(() {
       final temp = _startPoi;
+      final tempText = _startTextController.text;
       _startPoi = _endPoi;
+      _startTextController.text = _destinationTextController.text;
       _endPoi = temp;
+      _destinationTextController.text = tempText;
     });
   }
 
@@ -170,15 +181,17 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
                             Expanded(
                               child: PoiSearchInput(
                                 hintText: '輸入起點',
-                                initialValue: _startPoi?.name,
+                                initialValue: null, // Don't use initialValue to prevent reverting
                                 onPoiSelected: _onStartPoiSelected,
                                 onCleared: () {
                                   setState(() {
                                     _startPoi = null;
+                                    _startTextController.clear();
                                   });
                                 },
                                 showBorder: false,
                                 focusNode: _startFocusNode,
+                                textController: _startTextController, // Pass the text controller
                               ),
                             ),
                           ],
@@ -198,15 +211,17 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
                             Expanded(
                               child: PoiSearchInput(
                                 hintText: '輸入終點',
-                                initialValue: _endPoi?.name,
+                                initialValue: null, // Don't use initialValue to prevent reverting
                                 onPoiSelected: _onEndPoiSelected,
                                 onCleared: () {
                                   setState(() {
                                     _endPoi = null;
+                                    _destinationTextController.clear();
                                   });
                                 },
                                 showBorder: false,
                                 focusNode: _destinationFocusNode,
+                                textController: _destinationTextController, // Pass the text controller
                               ),
                             ),
                           ],
