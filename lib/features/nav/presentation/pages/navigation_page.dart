@@ -1,19 +1,48 @@
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/routing_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_bar_widget.dart';
+import 'package:findeasy/features/nav/presentation/widgets/routing_input_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:findeasy/features/nav/presentation/widgets/indoor_map_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/level_selection_widget.dart';
-import 'package:findeasy/features/nav/presentation/widgets/poi_list_widget.dart';
+
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:easyroute/easyroute.dart';
 
 /// Main navigation map page that displays the indoor map with POIs and routes
+/// 
+/// This page can operate in two modes:
+/// 1. Normal (home) mode: Shows search bar for finding POIs
+/// 2. Routing mode: Shows routing input for planning routes
+/// 
+/// The mode can be changed by:
+/// - Tapping the routing button (switches to routing mode)
+/// - Tapping the back button in routing mode (returns to home mode)
+/// - Programmatically setting initialStartPoi or initialDestinationPoi (automatically switches to routing mode)
 class NavigationPage extends ConsumerWidget {
-  const NavigationPage({super.key});
+  final Poi? initialStartPoi;
+  final Poi? initialDestinationPoi;
+
+  const NavigationPage({
+    super.key, 
+    this.initialStartPoi, 
+    this.initialDestinationPoi
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Watch the navigation mode
+    final navigationMode = ref.watch(navigationModeProvider);
+    
+    // If initial POIs are provided, automatically switch to routing mode
+    if ((initialStartPoi != null || initialDestinationPoi != null) && 
+        navigationMode == AppNavigationMode.home) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ref.read(navigationModeProvider.notifier).state = AppNavigationMode.routing;
+      });
+    }
+
     // final mapLoadingState = ref.watch(mapLoaderProvider);
 
     return Scaffold(
@@ -54,14 +83,22 @@ class NavigationPage extends ConsumerWidget {
           //   ),
           // ),
           
-           // Search bar at top
-           const Positioned(
+          // Top controls - conditionally show search bar or routing input
+          Positioned(
             top: 16,
-            //  bottom: MediaQuery.of(context).padding.bottom + 0,
-             left: 0,
-             right: 0,
-             child: SearchBarWidget(),
-           ),          
+            left: 0,
+            right: 0,
+            child: navigationMode == AppNavigationMode.home
+                ? const SearchBarWidget()
+                : RoutingInputWidget(
+                    initialStartPoint: initialStartPoi,
+                    initialDestination: initialDestinationPoi,
+                    onGoBack: () {
+                      // Return to home mode
+                      ref.read(navigationModeProvider.notifier).state = AppNavigationMode.home;
+                    },
+                  ),
+          ),          
 
 
           Positioned(
@@ -76,17 +113,19 @@ class NavigationPage extends ConsumerWidget {
             ),
           ),
 
-                     Positioned(
-             bottom: MediaQuery.of(context).padding.bottom + 16,
-             right: 16,
-             child: Column(
-               children: [
-                 const RoutingButton(),
-                 const SizedBox(height: 4),
-
-               ],
-             ),
-           ),
+          // Right side controls
+          Positioned(
+            bottom: MediaQuery.of(context).padding.bottom + 16,
+            right: 16,
+            child: Column(
+              children: [
+                // Show routing button only in home mode
+                if (navigationMode == AppNavigationMode.home)
+                  const RoutingButton(),
+                const SizedBox(height: 4),
+              ],
+            ),
+          ),
           // Bottom POI list
           // Positioned(
           //   bottom: 0,

@@ -189,3 +189,12 @@ final mapZoomProvider = StateProvider<double>((ref) => 18.0);
 //   'showDistance': true,
 //   'showEstimatedTime': true,
 // });
+
+// Navigation mode provider - tracks whether we're in normal (home) mode or routing mode
+final navigationModeProvider = StateProvider<AppNavigationMode>((ref) => AppNavigationMode.home);
+
+// Navigation mode enum
+enum AppNavigationMode {
+  home,    // Normal mode with search bar
+  routing  // Routing mode with routing input
+}

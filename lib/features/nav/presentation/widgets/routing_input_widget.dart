@@ -169,7 +169,7 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
                             const SizedBox(width: 4),
                             Expanded(
                               child: PoiSearchInput(
-                                hintText: 'Start point...',
+                                hintText: '輸入起點',
                                 initialValue: _startPoi?.name,
                                 onPoiSelected: _onStartPoiSelected,
                                 onCleared: () {
@@ -192,12 +192,12 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
                             Icon(
                               Icons.location_on,
                               color: Colors.red[600],
-                              size: 16,
+                              size: 18 ,
                             ),
                             const SizedBox(width: 4),
                             Expanded(
                               child: PoiSearchInput(
-                                hintText: 'Destination...',
+                                hintText: '輸入終點',
                                 initialValue: _endPoi?.name,
                                 onPoiSelected: _onEndPoiSelected,
                                 onCleared: () {
@@ -218,14 +218,19 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
                   const SizedBox(width: 8),
               
                   // Column 3: Swap button
-                  IconButton(
-                    onPressed: _swapPois,
-                    icon: Icon(
-                      Icons.swap_vert,
-                      color: Colors.grey[600],
-                      size: 24,
-                    ),
-                    tooltip: 'Swap start and end points',
+                  Column(
+                    children: [
+                      IconButton(
+                        onPressed: _swapPois,
+                        icon: Icon(
+                          Icons.swap_vert,
+                          color: Colors.grey[600],
+                          size: 24,
+                        ),
+                        tooltip: 'Swap start and end points',
+                      ),
+                      _buildRoutePlanButton(),
+                    ],
                   ),
               
                   const SizedBox(width: 8),
@@ -247,5 +252,54 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
         ),        
       ],
     );
+  }
+
+  Widget _buildRoutePlanButton() {
+    return 
+       ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            width: 55,
+            height: 42,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+
+
+                },
+                child: Row(
+                  children: [
+                     Center(
+                       child: SizedBox(
+                         width: 26,
+                         height: 26,
+                         child: Icon(
+                           Icons.turn_sharp_right,
+                           color: Colors.grey[600],
+                           size: 26,
+                         ),
+                       ),
+                     ),
+                    // const SizedBox(height: 0),
+                     Text(
+                      '規劃\n路線',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );    
   }
 }

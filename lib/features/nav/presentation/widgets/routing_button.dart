@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:easyroute/easyroute.dart';
-import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
-import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
-import 'package:findeasy/features/nav/presentation/pages/routing_page.dart';
+import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 
-/// Button widget for opening the routing page
-/// 
-/// Usage examples:
+
+/*
+TODO: implement the following logic in the mode transition
 /// - Without start/destination: RoutingButton() - opens route planning page
-/// - With destination: RoutingButton(destination: poi) - opens route planning page with pre-selected destination
-/// - With start point: RoutingButton(startPoint: poi) - opens route planning page with pre-selected start point
+/// - With destination: RoutingButton(destination: poi) - opens route planning page with 
+pre-selected destination
+/// - With start point: RoutingButton(startPoint: poi) - opens route planning page with 
+pre-selected start point
 /// 
 /// This allows users to jump directly to routing with either start or destination selected,
 /// useful for both "到這去" (Go Here) and "從這里出發" (Depart from Here) functionality.
 class RoutingButton extends StatelessWidget {
+
+*/
+
+/// Button widget for switching to routing mode
+/// 
+/// This button toggles the navigation mode from home to routing,
+/// allowing users to plan routes without navigating to a separate page.
+class RoutingButton extends ConsumerWidget {
 
   const RoutingButton({
     super.key,
@@ -22,7 +29,7 @@ class RoutingButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
 
     return 
         ClipRRect(
@@ -38,11 +45,8 @@ class RoutingButton extends StatelessWidget {
               color: Colors.transparent,
               child: InkWell(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const RoutingPage(),
-                    ),
-                  );
+                  // Switch to routing mode instead of navigating to a separate page
+                  ref.read(navigationModeProvider.notifier).state = AppNavigationMode.routing;
                 },
                 child: const Column(
                   children: [
@@ -51,7 +55,7 @@ class RoutingButton extends StatelessWidget {
                          width: 32,
                          height: 24,
                          child: Icon(
-                           Icons.route,
+                           Icons.turn_sharp_right,
                            color: Colors.orange,
                            size: 26,
                          ),
