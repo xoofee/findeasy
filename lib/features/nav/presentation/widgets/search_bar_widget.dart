@@ -2,6 +2,7 @@ import 'package:findeasy/features/nav/presentation/providers/navigation_provider
 import 'package:findeasy/features/nav/presentation/widgets/system_menu_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_search_input.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_results_widget.dart';
+import 'package:findeasy/features/nav/presentation/widgets/voice_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
@@ -74,27 +75,7 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
                   ),
                 ),
                 
-                // Voice input icon
-                Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      // TODO: Implement voice input
-                    },
-                    icon: Icon(
-                      Icons.mic,
-                      color: Colors.blue[600],
-                      size: 26,
-                    ),
-                    padding: const EdgeInsets.all(8),
-                    constraints: const BoxConstraints(
-                      minWidth: 36,
-                      minHeight: 36,
-                    ),
-                  ),
-                ),
+                const VoiceButton(),
                 const SystemMenuButton(),
               ],
             ),

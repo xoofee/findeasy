@@ -53,17 +53,25 @@ class NavigationPage extends ConsumerWidget {
           //     ],
           //   ),
           // ),
-           
+          
            // Search bar at top
+           const Positioned(
+            top: 16,
+            //  bottom: MediaQuery.of(context).padding.bottom + 0,
+             left: 0,
+             right: 0,
+             child: SearchBarWidget(),
+           ),          
+
 
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 8,
-            child: Column(
+            child: const Column(
               children: [
-                const CarParkingButton(),
-                const SizedBox(height: 4),
-                const LevelSelectionWidget(),
+                CarParkingButton(),
+                SizedBox(height: 4),
+                LevelSelectionWidget(),
               ],
             ),
           ),
