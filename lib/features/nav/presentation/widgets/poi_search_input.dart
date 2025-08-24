@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/search_providers.dart' as search_providers;
+import 'dart:async'; // Added for Timer
 
 /// Reusable POI search input widget for routing and other POI selection scenarios
 /// Note: Search results are handled by SearchResultsWidget, not this widget
@@ -33,6 +34,8 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
   bool _isFocused = false;
   bool _isProgrammaticChange = false; // Flag to prevent search on programmatic changes
   String _lastUserInput = ''; // Track the last user input to distinguish from programmatic changes
+  bool _shouldShowRed = false; // Flag to control when to show red text
+  Timer? _colorChangeTimer; // Timer to delay color change
 
   @override
   void initState() {
@@ -46,6 +49,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
 
   @override
   void dispose() {
+    _colorChangeTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _searchFocusNode.removeListener(_onFocusChanged);
     _searchController.dispose();
@@ -84,19 +88,52 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     
     if (query.isEmpty) {
       searchController.clearSearchAndInput();
+      _shouldShowRed = false;
+      _colorChangeTimer?.cancel();
+      setState(() {});
     } else {
-      // Only search if the query is different from the current search
-      // This prevents searching when a POI name is selected
-      final currentSearchQuery = ref.read(search_providers.searchControllerProvider).query;
-      if (query != currentSearchQuery) {
-        // Debounce search to avoid too many API calls
-        Future.delayed(const Duration(milliseconds: 300), () {
-          if (_searchController.text.trim() == query) {
-            searchController.searchPois(query, reset: true);
-          }
-        });
-      }
+             // Only search if the query is different from the current search
+       // This prevents searching when a POI name is selected
+       final currentSearchQuery = ref.read(search_providers.searchControllerProvider).query;
+       if (query != currentSearchQuery) {
+         // Reset color change timer
+         _colorChangeTimer?.cancel();
+         
+         // Only reset red color if we're starting a new search (not continuing to type)
+         if (query.length > currentSearchQuery.length) {
+           // User is adding characters, keep current color state
+         } else {
+           // User is changing/deleting characters, reset to black
+           _shouldShowRed = false;
+           setState(() {});
+         }
+         
+         // Debounce search to avoid too many API calls
+         Future.delayed(const Duration(milliseconds: 300), () {
+           if (_searchController.text.trim() == query) {
+             searchController.searchPois(query, reset: true);
+             
+             // Set a timer to check for exact match after search completes
+             _colorChangeTimer = Timer(const Duration(milliseconds: 500), () {
+               if (mounted && _searchController.text.trim() == query) {
+                 _checkForExactMatch(query);
+               }
+             });
+           }
+         });
+       }
     }
+  }
+
+  void _checkForExactMatch(String query) {
+    if (!mounted) return;
+    
+    final searchResults = ref.read(search_providers.searchResultsProvider);
+    final hasExactMatch = searchResults.any((poi) => poi.name.toLowerCase() == query.toLowerCase());
+    
+    setState(() {
+      _shouldShowRed = !hasExactMatch;
+    });
   }
 
   void _onCleared() {
@@ -111,6 +148,8 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     _isProgrammaticChange = true;
     _searchController.text = text;
     _lastUserInput = text;
+    _shouldShowRed = false; // Reset red color when POI is selected
+    _colorChangeTimer?.cancel();
     // Reset flag after a short delay
     Future.delayed(const Duration(milliseconds: 50), () {
       _isProgrammaticChange = false;
@@ -153,9 +192,9 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
                   contentPadding: EdgeInsets.zero,
                   isDense: true,
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: Colors.black87,
+                  color: _shouldShowRed ? Colors.red : Colors.black87,
                 ),
               ),
             ),
