@@ -55,13 +55,6 @@ class NavigationPage extends ConsumerWidget {
           // ),
            
            // Search bar at top
-           Positioned(
-            top: 16,
-            //  bottom: MediaQuery.of(context).padding.bottom + 0,
-             left: 0,
-             right: 0,
-             child: const SearchBarWidget(),
-           ),          
 
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 16,

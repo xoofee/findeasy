@@ -3,17 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_search_input.dart';
 
-/// Widget for routing input with start and end POI selection
+/// Simple widget for routing input with start and end POI selection
+/// 
+/// This widget provides a clean interface for route planning with:
+/// - Start point selection (can be pre-filled with initialStartPoint)
+/// - End point selection (can be pre-filled with initialDestination)
+/// - Swap button to exchange start and end points
+/// - Route calculation button
+/// 
+/// The widget automatically handles the case where start or destination is pre-selected,
+/// making it perfect for both "到這去" (Go Here) and "從這里出發" (Depart from Here) functionality.
 class RoutingInputWidget extends ConsumerStatefulWidget {
   final ValueChanged<Poi>? onStartPoiSelected;
   final ValueChanged<Poi>? onEndPoiSelected;
   final VoidCallback? onRouteRequested;
+  final Poi? initialStartPoint;
+  final Poi? initialDestination;
 
   const RoutingInputWidget({
     super.key,
     this.onStartPoiSelected,
     this.onEndPoiSelected,
     this.onRouteRequested,
+    this.initialStartPoint,
+    this.initialDestination,
   });
 
   @override
@@ -23,6 +36,19 @@ class RoutingInputWidget extends ConsumerStatefulWidget {
 class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   Poi? _startPoi;
   Poi? _endPoi;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set initial start point if provided
+    if (widget.initialStartPoint != null) {
+      _startPoi = widget.initialStartPoint;
+    }
+    // Set initial destination if provided
+    if (widget.initialDestination != null) {
+      _endPoi = widget.initialDestination;
+    }
+  }
 
   void _onStartPoiSelected(Poi poi) {
     setState(() {
@@ -73,26 +99,6 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
-          Row(
-            children: [
-              Icon(
-                Icons.route,
-                color: Colors.blue[600],
-                size: 24,
-              ),
-              const SizedBox(width: 8),
-              const Text(
-                'Route Planning',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-
           // Start POI input
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,58 +217,6 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
               ),
             ),
           ),
-
-          // Selected POIs summary
-          if (canRoute) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.blue[50],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.blue[200]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Route Summary',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[700],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.trip_origin, color: Colors.green[600], size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _startPoi!.name,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.red[600], size: 16),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          _endPoi!.name,
-                          style: const TextStyle(fontSize: 12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );

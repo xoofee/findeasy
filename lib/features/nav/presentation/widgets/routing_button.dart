@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
 import 'package:findeasy/features/nav/presentation/pages/routing_page.dart';
 
+/// Button widget for opening the routing page
+/// 
+/// Usage examples:
+/// - Without start/destination: RoutingButton() - opens route planning page
+/// - With destination: RoutingButton(destination: poi) - opens route planning page with pre-selected destination
+/// - With start point: RoutingButton(startPoint: poi) - opens route planning page with pre-selected start point
+/// 
+/// This allows users to jump directly to routing with either start or destination selected,
+/// useful for both "到這去" (Go Here) and "從這里出發" (Depart from Here) functionality.
 class RoutingButton extends StatelessWidget {
 
-  
   const RoutingButton({
     super.key,
+
   });
 
   @override
