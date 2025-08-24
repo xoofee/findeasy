@@ -1,4 +1,3 @@
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:findeasy/features/nav/presentation/utils/level_extension.dart';
 import 'package:findeasy/features/nav/presentation/utils/car_park_utils.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +6,9 @@ import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/search_providers.dart' as search_providers;
 
 /// Widget for displaying search results with pagination
+/// This is used intensively! not the list in the poi_search_input.dart
 class SearchResultsWidget extends ConsumerStatefulWidget {
-  final VoidCallback? onPoiSelected;
+  final ValueChanged<Poi>? onPoiSelected;
   final bool showCloseButton;
   final bool showActionButtons;
 
@@ -62,6 +62,14 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
         _isLoadingMore = false;
       });
     }
+  }
+
+  void _onPoiSelected(Poi poi, search_providers.SearchController searchController) {
+    // Call the callback with the selected POI
+    widget.onPoiSelected?.call(poi);
+    
+    // Clear search results after selection
+    searchController.clearSearch();
   }
 
   @override
@@ -212,8 +220,8 @@ class _SearchResultsWidgetState extends ConsumerState<SearchResultsWidget> {
       ),
       trailing: widget.showActionButtons ? _buildActionButtons(poi) : null,
       onTap: () {
-        widget.onPoiSelected?.call();
-        // You can add additional logic here like selecting the POI
+        // Call the onPoiSelected callback with the selected POI
+        _onPoiSelected(poi, searchController);
       },
     );
   }

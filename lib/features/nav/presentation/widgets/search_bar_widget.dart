@@ -69,8 +69,6 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
                     onCleared: () {
                       // Clear search when needed
                     },
-                    showResults: false, // We'll show results separately below
-                    maxResults: 0, // No dropdown results in the input itself
                     showBorder: false,
                   ),
                 ),
@@ -84,8 +82,9 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
         
         // Search results (show below search bar)
         if (widget.showResults)
-          const SearchResultsWidget(
+          SearchResultsWidget(
             showActionButtons: true,
+            onPoiSelected: widget.onPoiSelected,
           ),
       ],
     );

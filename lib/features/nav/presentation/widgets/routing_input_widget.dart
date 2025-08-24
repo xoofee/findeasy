@@ -1,3 +1,4 @@
+import 'package:findeasy/features/nav/presentation/widgets/search_results_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
@@ -36,6 +37,9 @@ class RoutingInputWidget extends ConsumerStatefulWidget {
 class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
   Poi? _startPoi;
   Poi? _endPoi;
+  final FocusNode _startFocusNode = FocusNode();
+  final FocusNode _destinationFocusNode = FocusNode();
+  String? _lastFocusedField; // Track which field was last focused
 
   @override
   void initState() {
@@ -48,6 +52,28 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
     if (widget.initialDestination != null) {
       _endPoi = widget.initialDestination;
     }
+    
+    // Add focus listeners to track which field was last focused
+    _startFocusNode.addListener(() {
+      if (_startFocusNode.hasFocus) {
+        _lastFocusedField = 'start';
+        // print('start focused');
+      }
+    });
+    
+    _destinationFocusNode.addListener(() {
+      if (_destinationFocusNode.hasFocus) {
+        _lastFocusedField = 'destination';
+        // print('destination focused');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _startFocusNode.dispose();
+    _destinationFocusNode.dispose();
+    super.dispose();
   }
 
   void _onStartPoiSelected(Poi poi) {
@@ -62,6 +88,25 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
       _endPoi = poi;
     });
     widget.onEndPoiSelected?.call(poi);
+  }
+
+  void _onPoiSelectedFromSearch(Poi poi) {
+    // Use the last focused field to determine which input should receive the POI
+    if (_lastFocusedField == 'start') {
+      _onStartPoiSelected(poi);
+    } else if (_lastFocusedField == 'destination') {
+      _onEndPoiSelected(poi);
+    } else {
+      // If no field was focused, check if one field is empty and fill it
+      if (_startPoi == null) {
+        _onStartPoiSelected(poi);
+      } else if (_endPoi == null) {
+        _onEndPoiSelected(poi);
+      } else {
+        // Both fields have values, default to start point
+        _onStartPoiSelected(poi);
+      }
+    }
   }
 
   void _swapPois() {
@@ -79,115 +124,128 @@ class _RoutingInputWidgetState extends ConsumerState<RoutingInputWidget> {
 
     @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Column 1: Go back button
-          IconButton(
-            onPressed: widget.onGoBack ?? () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back, size: 24),
-            tooltip: 'Go Back',
-          ),
-
-          const SizedBox(width: 8),
-
-          // Column 2: Start and Destination inputs
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Start POI input row
-                Row(
-                  children: [
-                    Icon(
-                      Icons.trip_origin,
-                      color: Colors.green[600],
-                      size: 16,
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  // Column 1: Go back button
+                  IconButton(
+                    onPressed: widget.onGoBack ?? () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back, size: 24),
+                    tooltip: 'Go Back',
+                  ),
+              
+                  const SizedBox(width: 8),
+              
+                  // Column 2: Start and Destination inputs
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Start POI input row
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.trip_origin,
+                              color: Colors.green[600],
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: PoiSearchInput(
+                                hintText: 'Start point...',
+                                initialValue: _startPoi?.name,
+                                onPoiSelected: _onStartPoiSelected,
+                                onCleared: () {
+                                  setState(() {
+                                    _startPoi = null;
+                                  });
+                                },
+                                showBorder: false,
+                                focusNode: _startFocusNode,
+                              ),
+                            ),
+                          ],
+                        ),
+              
+                        const SizedBox(height:0),
+              
+                        // Destination POI input row
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.red[600],
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: PoiSearchInput(
+                                hintText: 'Destination...',
+                                initialValue: _endPoi?.name,
+                                onPoiSelected: _onEndPoiSelected,
+                                onCleared: () {
+                                  setState(() {
+                                    _endPoi = null;
+                                  });
+                                },
+                                showBorder: false,
+                                focusNode: _destinationFocusNode,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: PoiSearchInput(
-                        hintText: 'Start point...',
-                        initialValue: _startPoi?.name,
-                        onPoiSelected: _onStartPoiSelected,
-                        onCleared: () {
-                          setState(() {
-                            _startPoi = null;
-                          });
-                        },
-                        maxResults: 3,
-                        showBorder: false,
-                      ),
+                  ),
+              
+                  const SizedBox(width: 8),
+              
+                  // Column 3: Swap button
+                  IconButton(
+                    onPressed: _swapPois,
+                    icon: Icon(
+                      Icons.swap_vert,
+                      color: Colors.grey[600],
+                      size: 24,
                     ),
-                  ],
-                ),
+                    tooltip: 'Swap start and end points',
+                  ),
+              
+                  const SizedBox(width: 8),
+              
+                  // Column 4: Voice button
+                  VoiceButton(
+                    onPressed: _onVoiceInput,
+                    size: 24,
+                  ),
+                ],
+              ),
 
-                const SizedBox(height:0),
-
-                // Destination POI input row
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      color: Colors.red[600],
-                      size: 16,
-                    ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: PoiSearchInput(
-                        hintText: 'Destination...',
-                        initialValue: _endPoi?.name,
-                        onPoiSelected: _onEndPoiSelected,
-                        onCleared: () {
-                          setState(() {
-                            _endPoi = null;
-                          });
-                        },
-                        maxResults: 3,
-                        showBorder: false,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+            ],
           ),
-
-          const SizedBox(width: 8),
-
-          // Column 3: Swap button
-          IconButton(
-            onPressed: _swapPois,
-            icon: Icon(
-              Icons.swap_vert,
-              color: Colors.grey[600],
-              size: 24,
-            ),
-            tooltip: 'Swap start and end points',
-          ),
-
-          const SizedBox(width: 8),
-
-          // Column 4: Voice button
-          VoiceButton(
-            onPressed: _onVoiceInput,
-            size: 24,
-          ),
-        ],
-      ),
+        ),
+        SearchResultsWidget(
+          showActionButtons: false,
+          onPoiSelected: _onPoiSelectedFromSearch,
+        ),        
+      ],
     );
   }
 }
