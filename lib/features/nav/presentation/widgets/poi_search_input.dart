@@ -34,7 +34,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
   bool _isFocused = false;
   bool _isProgrammaticChange = false; // Flag to prevent search on programmatic changes
   String _lastUserInput = ''; // Track the last user input to distinguish from programmatic changes
-  bool _shouldShowRed = false; // Flag to control when to show red text
+  bool _shouldShowRed = true; // Flag to control when to show red text
   Timer? _colorChangeTimer; // Timer to delay color change
 
   @override
@@ -43,6 +43,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     _searchFocusNode = widget.focusNode ?? FocusNode();
     _searchController.text = widget.initialValue ?? '';
     _lastUserInput = _searchController.text;
+    _shouldShowRed = true; // Start with red text color
     _searchController.addListener(_onSearchChanged);
     _searchFocusNode.addListener(_onFocusChanged);
   }
@@ -88,7 +89,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
     
     if (query.isEmpty) {
       searchController.clearSearchAndInput();
-      _shouldShowRed = false;
+      _shouldShowRed = true;
       _colorChangeTimer?.cancel();
       setState(() {});
     } else {
@@ -104,7 +105,7 @@ class _PoiSearchInputState extends ConsumerState<PoiSearchInput> {
            // User is adding characters, keep current color state
          } else {
            // User is changing/deleting characters, reset to black
-           _shouldShowRed = false;
+           _shouldShowRed = true;
            setState(() {});
          }
          
