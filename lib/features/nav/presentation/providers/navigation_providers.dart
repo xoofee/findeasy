@@ -196,5 +196,6 @@ final navigationModeProvider = StateProvider<AppNavigationMode>((ref) => AppNavi
 // Navigation mode enum
 enum AppNavigationMode {
   home,    // Normal mode with search bar
-  routing  // Routing mode with routing input
+  routing,  // Routing mode with routing input, routes preview
+  navigation, // navigate user to destination with instructions
 }

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:findeasy/features/nav/presentation/widgets/indoor_map_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/level_selection_widget.dart';
+import 'package:findeasy/features/nav/presentation/widgets/routing/level_transition_widget.dart';
 
 import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 import 'package:easyroute/easyroute.dart';
@@ -104,11 +105,15 @@ class NavigationPage extends ConsumerWidget {
           Positioned(
             bottom: MediaQuery.of(context).padding.bottom + 16,
             left: 8,
-            child: const Column(
+            child: Column(
               children: [
-                CarParkingButton(),
-                SizedBox(height: 4),
-                LevelSelectionWidget(),
+                const CarParkingButton(),
+                const SizedBox(height: 4),
+                // Show level transition widget in routing mode when there's a route
+                if (navigationMode == AppNavigationMode.routing)
+                  const LevelTransitionWidget()
+                else
+                  const LevelSelectionWidget(),
               ],
             ),
           ),
