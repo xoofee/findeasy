@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/routing_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
 
 /// Widget that shows level transition information when routing between POIs
 /// Shows one level if start and end are on same floor, or two levels with arrow if different floors
@@ -12,6 +13,7 @@ class LevelTransitionWidget extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final route = ref.watch(routeBetweenPoisProvider);
+    final currentLevel = ref.watch(currentLevelProvider);
     
     // Only show when there's a route
     if (route == null) {
@@ -49,7 +51,8 @@ class LevelTransitionWidget extends ConsumerWidget {
               // Show higher level on top, lower level on bottom
               _buildLevelItem(
                 level: goesUp ? endLevel : startLevel,
-                isSelected: false,
+                isSelected: (goesUp ? endLevel : startLevel) == currentLevel,
+                onTap: () => _selectLevel(ref, goesUp ? endLevel : startLevel),
               ),
               // Arrow between levels
               SizedBox(
@@ -57,20 +60,22 @@ class LevelTransitionWidget extends ConsumerWidget {
                 height: 20,
                 child: Icon(
                   goesUp? Icons.arrow_upward : Icons.arrow_downward,
-                  color: Colors.black,
+                  color: Colors.orange,
                   size: 20,
                 ),
               ),
               // Show lower level on bottom
               _buildLevelItem(
                 level: goesUp ? startLevel : endLevel,
-                isSelected: false,
+                isSelected: (goesUp ? startLevel : endLevel) == currentLevel,
+                onTap: () => _selectLevel(ref, goesUp ? startLevel : endLevel),
               ),
             ] else ...[
               // Show single level if no level change
               _buildLevelItem(
                 level: startLevel,
-                isSelected: false,
+                isSelected: startLevel == currentLevel,
+                onTap: () => _selectLevel(ref, startLevel),
               ),
             ],
           ],
@@ -82,36 +87,40 @@ class LevelTransitionWidget extends ConsumerWidget {
   Widget _buildLevelItem({
     required Level level,
     required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      width: 30,
-      height: 30,
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(
-          color: Colors.grey.shade300,
-          width: 1,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 30,
+        height: 30,
+        margin: const EdgeInsets.symmetric(vertical: 2),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.orange : Colors.white,
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: isSelected ? Colors.orange : Colors.grey.shade300,
+            width: 1,
+          ),
         ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
+        child: Center(
+          child: Text(
             level.displayName,
-            style: const TextStyle(
-              color: Colors.black87,
-              // fontWeight: FontWeight.bold,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black87,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
               fontSize: 12,
             ),
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          
-        ],
+        ),
       ),
     );
+  }
+
+  void _selectLevel(WidgetRef ref, Level level) {
+    ref.read(currentLevelProvider.notifier).setLevel(level);
   }
 }

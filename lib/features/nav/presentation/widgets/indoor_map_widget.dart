@@ -54,7 +54,6 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
     final placePosition = placeMap?.position;
     final poiManager = asyncMapResult?.poiManager;
 
-    final currentLevel = ref.watch(currentLevelProvider);
     final placeMatched = ref.watch(placeMatchedProvider.notifier).state;
 
 
@@ -75,21 +74,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
 
     // Build POI markers
     // _buildPoiMarkers(pois, selectedPoi);
-    
-    // Build POI polygons (for way-based POIs)
-    if (currentLevel != null && placeMap != null && placeMap.levelMaps.containsKey(currentLevel)) {
-      _poiPolygons.clear();
-      // _parkingSpaceNameMarkers.clear();
-      final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
-      _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue));
-      _parkingSpaceNameMarkers = parkingSpaces.toTextMarkers();
 
-      // WidgetsBinding.instance.addPostFrameCallback((_) {
-      //   _animatedMapController.animateTo(
-      //     dest: placeMap.position, 
-      //   );
-      // });
-    }
     
     // Build route lines
     // _buildRouteLines(routes, routeGeometry);
@@ -117,21 +102,56 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         // ZoomDependentMarkers(
         //   markers: _parkingSpaceNameMarkers,
         // ),
+        if (placeMatched && placeMap != null) 
+                Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+                  final mapZoom = ref.watch(mapZoomProvider);
+                  final currentLevel = ref.watch(currentLevelProvider);
 
-        Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
-          final mapZoom = ref.watch(mapZoomProvider);
-          if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers, rotate: true);
-          return const SizedBox.shrink();
-        }),
+                  final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
+
+                  _parkingSpaceNameMarkers = parkingSpaces.toTextMarkers();
+                  
+                  if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers, rotate: true);
+                  return const SizedBox.shrink();
+                }),
 
         // POI Polygons: parking spaces
 
-        if (placeMatched) ...[PolygonLayer(polygons: _poiPolygons),
-        // Route Lines
-        PolylineLayer(polylines: _routeLines),
+        // if (placeMatched) ...[PolygonLayer(polygons: _poiPolygons),
+        // // Route Lines
+        // // PolylineLayer(polylines: _routeLines),
 
-        _buildCarParkingMarker(placeMap, poiManager, currentLevel),
+        // _buildCarParkingMarker(placeMap, poiManager, currentLevel),
+        // ],
+
+        if (placeMatched && placeMap != null) ...[
+          Consumer( builder: (context, ref, child) {
+
+            final currentLevel = ref.watch(currentLevelProvider);
+
+            // Build POI polygons (for way-based POIs)
+            if (currentLevel != null && placeMap.levelMaps.containsKey(currentLevel)) {
+              _poiPolygons.clear();
+              // _parkingSpaceNameMarkers.clear();
+              final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
+              _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue));
+
+              // WidgetsBinding.instance.addPostFrameCallback((_) {
+              //   _animatedMapController.animateTo(
+              //     dest: placeMap.position, 
+              //   );
+              // });
+              return PolygonLayer(polygons: _poiPolygons);
+            } else {
+              return const SizedBox.shrink();
+            }
+          }),
+          Consumer( builder: (context, ref, child) {
+            final currentLevel = ref.watch(currentLevelProvider);
+            return _buildCarParkingMarker(placeMap, poiManager, currentLevel);
+          }),
         ],
+
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
           final route = ref.watch(routeBetweenPoisProvider);
           if (route == null) return const SizedBox.shrink();
