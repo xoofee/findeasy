@@ -135,6 +135,10 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
           final route = ref.watch(routeBetweenPoisProvider);
           if (route == null) return const SizedBox.shrink();
+          WidgetsBinding.instance.addPostFrameCallback((_) {  // without this will cause error
+            ref.read(currentLevelProvider.notifier).setLevel(route.startLevel);
+          });
+
           return PolylineLayer(polylines: [Polyline(points: route.geometry.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
         }),
       ],

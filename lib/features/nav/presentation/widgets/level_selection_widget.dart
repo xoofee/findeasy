@@ -99,6 +99,6 @@ class LevelSelectionWidget extends ConsumerWidget {
   // }
 
   void _selectLevel(WidgetRef ref, Level level) {
-    ref.read(currentLevelProvider.notifier).state = level;
+    ref.read(currentLevelProvider.notifier).setLevel(level);
   }
 }

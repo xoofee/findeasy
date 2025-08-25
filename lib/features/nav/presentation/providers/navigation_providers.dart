@@ -13,7 +13,9 @@ import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/data/repositories/map_repository.dart';
 import 'package:findeasy/features/map/data/datasources/place_map_asset_data_source.dart';
 import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'navigation_providers.g.dart';
 
 // ======= Dependency Providers =======
 
@@ -136,20 +138,43 @@ final poiManagerProvider = Provider<PoiManager?>((ref) {
   return mapResult.poiManager;
 });
 
-class CurrentLevelController extends StateNotifier<Level?> {   // StateNotifier must be provided by StateNotifierProvider
-  CurrentLevelController(Ref ref) : super(null) {
-    ref.listen<List<Level>>(availableLevelsProvider, (prev, next) {
-      if (next.isNotEmpty) state = next.getDefaultLevel();
-    });
-  }
-}
+// class CurrentLevelController extends StateNotifier<Level?> {   // StateNotifier must be provided by StateNotifierProvider
+//   CurrentLevelController(Ref ref) : super(null) {
+//     ref.listen<List<Level>>(availableLevelsProvider, (prev, next) {
+//       if (next.isNotEmpty) state = next.getDefaultLevel();
+//     });
+//   }
+// }
 
-// Current level provider for map display
-// reset when placemap fetched. Changed by tap
-final currentLevelProvider =
-    StateNotifierProvider<CurrentLevelController, Level?>(
-  (ref) => CurrentLevelController(ref),
-);
+// // Current level provider for map display
+// // reset when placemap fetched. Changed by tap
+// final currentLevelProvider =
+//     StateNotifierProvider<CurrentLevelController, Level?>(
+//   (ref) => CurrentLevelController(ref),
+// );
+
+@riverpod
+class CurrentLevel extends _$CurrentLevel {
+  CurrentLevel() : super();
+
+  @override
+  Level? build() {
+    // Listen to availableLevelsProvider
+    ref.listen<List<Level>>(
+      availableLevelsProvider,
+      (prev, next) {
+        if (next.isNotEmpty) {
+          state = next.getDefaultLevel();
+        }
+      },
+    );
+    return null; // Initial state
+  }
+
+  void setLevel(Level? level) {
+    state = level;
+  }  
+}
 
 // // POI search provider
 // final poiSearchProvider = StateProvider<String>((ref) => '');

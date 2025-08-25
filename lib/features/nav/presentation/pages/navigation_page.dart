@@ -107,7 +107,8 @@ class NavigationPage extends ConsumerWidget {
             left: 8,
             child: Column(
               children: [
-                const CarParkingButton(),
+                if (navigationMode == AppNavigationMode.home)
+                  const CarParkingButton(),
                 const SizedBox(height: 4),
                 // Show level transition widget in routing mode when there's a route
                 if (navigationMode == AppNavigationMode.routing)
