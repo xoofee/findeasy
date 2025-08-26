@@ -54,10 +54,10 @@ void main() {
         geometry: [],
         distance: 100.0,
         instructions: [],
-        startPoi: startPoi,
-        endPoi: startPoi, // Same POI, same level
-        startLevel: level1,
-        endLevel: level1,
+        originPoi: startPoi,
+        destinationPoi: startPoi, // Same POI, same level
+        originLevel: level1,
+        destinationLevel: level1,
       );
 
       // Override the provider
@@ -89,10 +89,10 @@ void main() {
         geometry: [],
         distance: 100.0,
         instructions: [],
-        startPoi: startPoi,
-        endPoi: endPoi,
-        startLevel: level1,
-        endLevel: level2,
+        originPoi: startPoi,
+        destinationPoi: endPoi,
+        originLevel: level1,
+        destinationLevel: level2,
       );
 
       // Override the provider

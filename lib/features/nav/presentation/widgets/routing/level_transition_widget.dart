@@ -20,8 +20,8 @@ class LevelTransitionWidget extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final startLevel = route.startLevel;
-    final endLevel = route.endLevel;
+    final startLevel = route.originLevel;
+    final endLevel = route.destinationLevel;
     final hasLevelChange = route.hasLevelChange;
     final goesUp = startLevel.value < endLevel.value;
 

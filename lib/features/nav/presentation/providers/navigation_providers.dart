@@ -60,14 +60,7 @@ Future<void> refreshDevicePosition(WidgetRef ref) async {
   ref.invalidate(currentDevicePositionProvider);
 }
 
-// Will be refreshed when currentPositionProvider is refreshed
-final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
-  final center = ref.watch(currentDevicePositionProvider).valueOrNull;
-  if (center == null) return null;  // device position is not ready yet
-  final repo = ref.watch(placesRepositoryProvider);
-  return await repo.getPlaces(center);  // should await or not?
-});
-
+// v0
 // final nearestPlaceProvider = StateProvider<Place?>( (ref) {
 //   ref.watch(nearbyPlacesProvider).when(
 //     data: (places) {
@@ -79,6 +72,22 @@ final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
 //     error: (error, stack) => null,
 //   );
 // });
+
+// v1
+// final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
+//   final center = ref.watch(currentDevicePositionProvider).valueOrNull;
+//   if (center == null) return null;  // device position is not ready yet
+//   final repo = ref.watch(placesRepositoryProvider);
+//   return await repo.getPlaces(center);  // should await or not?
+// });
+
+// v2
+// Will be refreshed when currentPositionProvider is refreshed
+final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
+  final center = await ref.watch(currentDevicePositionProvider.future);   // valueOrNull is anti-pattern
+  final repo = ref.watch(placesRepositoryProvider);
+  return await repo.getPlaces(center);
+});
 
 class CurrentPlaceController extends StateNotifier<Place?> {
   CurrentPlaceController(Ref ref) : super(null) {

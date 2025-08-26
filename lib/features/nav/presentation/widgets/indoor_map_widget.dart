@@ -151,13 +151,26 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
             return _buildCarParkingMarker(placeMap, poiManager, currentLevel);
           }),
         ],
-
+        // a hack to set the current level to the origin level of the route
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
           final route = ref.watch(routeBetweenPoisProvider);
           if (route == null) return const SizedBox.shrink();
           WidgetsBinding.instance.addPostFrameCallback((_) {  // without this will cause error
-            ref.read(currentLevelProvider.notifier).setLevel(route.startLevel);
+            ref.read(currentLevelProvider.notifier).setLevel(route.originLevel);
           });
+          return const SizedBox.shrink();
+        }),
+
+        Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+          final route = ref.watch(routeBetweenPoisProvider);
+          if (route == null) return const SizedBox.shrink();
+          final currentLevel = ref.watch(currentLevelProvider);
+
+          if (route.hasLevelChange) {
+            return currentLevel == route.originLevel ? 
+              PolylineLayer(polylines: [Polyline(points: route.geometryAtOriginLevel!.toLatLngList(), color: Colors.orange, strokeWidth: 4)]) :
+              PolylineLayer(polylines: [Polyline(points: route.geometryAtDestinationLevel!.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
+          }
 
           return PolylineLayer(polylines: [Polyline(points: route.geometry.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
         }),
