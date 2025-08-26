@@ -60,28 +60,6 @@ Future<void> refreshDevicePosition(WidgetRef ref) async {
   ref.invalidate(currentDevicePositionProvider);
 }
 
-// v0
-// final nearestPlaceProvider = StateProvider<Place?>( (ref) {
-//   ref.watch(nearbyPlacesProvider).when(
-//     data: (places) {
-//         if (places.isEmpty) return null;
-//         ref.watch(currentPlaceProvider.notifier).state = places.first;
-//         return places.first;
-//       },
-//     loading: () => null,
-//     error: (error, stack) => null,
-//   );
-// });
-
-// v1
-// final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
-//   final center = ref.watch(currentDevicePositionProvider).valueOrNull;
-//   if (center == null) return null;  // device position is not ready yet
-//   final repo = ref.watch(placesRepositoryProvider);
-//   return await repo.getPlaces(center);  // should await or not?
-// });
-
-// v2
 // Will be refreshed when currentPositionProvider is refreshed
 final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
   final center = await ref.watch(currentDevicePositionProvider.future);   // valueOrNull is anti-pattern
@@ -89,8 +67,12 @@ final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
   return await repo.getPlaces(center);
 });
 
-class CurrentPlaceController extends StateNotifier<Place?> {
-  CurrentPlaceController(Ref ref) : super(null) {
+@riverpod
+class CurrentPlace extends _$CurrentPlace {
+  CurrentPlace() : super();
+  
+  @override
+  Place? build() {
     ref.listen<AsyncValue<List<Place>?>>(nearbyPlacesProvider, (prev, next) {
       next.whenData((places) {
         // without compare state, the assignment will cause placeMapProvider
@@ -100,13 +82,15 @@ class CurrentPlaceController extends StateNotifier<Place?> {
         if (state != places.first) state = places.first;
       });
     });
+
+    return null;
   }
 }
 
-final currentPlaceProvider =
-    StateNotifierProvider<CurrentPlaceController, Place?>(
-  (ref) => CurrentPlaceController(ref),
-);
+// final currentPlaceProvider =
+//     StateNotifierProvider<CurrentPlaceController, Place?>(
+//   (ref) => CurrentPlaceController(ref),
+// );
 
 // final currentPlaceProvider = StateProvider<Place?>((ref) {
 //   final places = ref.watch(nearbyPlacesProvider).valueOrNull;

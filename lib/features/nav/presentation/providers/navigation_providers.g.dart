@@ -6,7 +6,22 @@ part of 'navigation_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$currentLevelHash() => r'ed2253f6ffad1f710844ff209f84ac2b34a5d938';
+String _$currentPlaceHash() => r'd129dd957c8b84af12800a70edef6cb4888f575f';
+
+/// See also [CurrentPlace].
+@ProviderFor(CurrentPlace)
+final currentPlaceProvider =
+    AutoDisposeNotifierProvider<CurrentPlace, Place?>.internal(
+  CurrentPlace.new,
+  name: r'currentPlaceProvider',
+  debugGetCreateSourceHash:
+      const bool.fromEnvironment('dart.vm.product') ? null : _$currentPlaceHash,
+  dependencies: null,
+  allTransitiveDependencies: null,
+);
+
+typedef _$CurrentPlace = AutoDisposeNotifier<Place?>;
+String _$currentLevelHash() => r'06ebe9866e1b4e8111d91d47922eeb82dd7cc225';
 
 /// See also [CurrentLevel].
 @ProviderFor(CurrentLevel)

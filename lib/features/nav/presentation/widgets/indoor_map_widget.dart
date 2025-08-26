@@ -164,12 +164,21 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
           final route = ref.watch(routeBetweenPoisProvider);
           if (route == null) return const SizedBox.shrink();
-          final currentLevel = ref.watch(currentLevelProvider);
 
+          // do not consider multiple level changes: only change once at most, for now.
           if (route.hasLevelChange) {
-            return currentLevel == route.originLevel ? 
-              PolylineLayer(polylines: [Polyline(points: route.geometryAtOriginLevel!.toLatLngList(), color: Colors.orange, strokeWidth: 4)]) :
-              PolylineLayer(polylines: [Polyline(points: route.geometryAtDestinationLevel!.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
+            final currentLevel = ref.watch(currentLevelProvider);
+            final highlightOriginLevel = currentLevel == route.originLevel;
+
+            final originColor = highlightOriginLevel ? Colors.orange : Colors.orange.withOpacity(0.5);
+            final destinationColor = highlightOriginLevel ? Colors.orange.withOpacity(0.5) : Colors.orange;
+            final originStrokeWidth = highlightOriginLevel ? 4.0 : 3.0;
+            final destinationStrokeWidth = highlightOriginLevel ? 3.0 : 4.0;
+                        
+            return PolylineLayer(polylines: [
+              Polyline(points: route.geometryAtOriginLevel!.toLatLngList(), color: originColor, strokeWidth: originStrokeWidth),
+              Polyline(points: route.geometryAtDestinationLevel!.toLatLngList(), color: destinationColor, strokeWidth: destinationStrokeWidth),
+            ]);
           }
 
           return PolylineLayer(polylines: [Polyline(points: route.geometry.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
