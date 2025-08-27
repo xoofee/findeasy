@@ -62,7 +62,7 @@ void main() {
 
       // Override the provider
       container.updateOverrides([
-        routeBetweenPoisProvider.overrideWithValue(route),
+        routeProvider.overrideWithValue(route),
       ]);
 
       await tester.pumpWidget(
@@ -97,7 +97,7 @@ void main() {
 
       // Override the provider
       container.updateOverrides([
-        routeBetweenPoisProvider.overrideWithValue(route),
+        routeProvider.overrideWithValue(route),
       ]);
 
       await tester.pumpWidget(

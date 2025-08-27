@@ -12,7 +12,7 @@ class LevelTransitionWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final route = ref.watch(routeBetweenPoisProvider);
+    final route = ref.watch(routeProvider);
     final currentLevel = ref.watch(currentLevelProvider);
     
     // Only show when there's a route

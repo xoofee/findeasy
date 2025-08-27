@@ -153,7 +153,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         ],
         // a hack to set the current level to the origin level of the route
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
-          final route = ref.watch(routeBetweenPoisProvider);
+          final route = ref.watch(routeProvider);
           if (route == null) return const SizedBox.shrink();
           WidgetsBinding.instance.addPostFrameCallback((_) {  // without this will cause error
             ref.read(currentLevelProvider.notifier).setLevel(route.originLevel);
@@ -162,7 +162,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         }),
 
         Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
-          final route = ref.watch(routeBetweenPoisProvider);
+          final route = ref.watch(routeProvider);
           if (route == null) return const SizedBox.shrink();
 
           // do not consider multiple level changes: only change once at most, for now.

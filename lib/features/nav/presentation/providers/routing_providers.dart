@@ -34,7 +34,7 @@ final originPoiProvider = StateProvider<Poi?>((ref) => null);
 final destinationPoiProvider = StateProvider<Poi?>((ref) => null);
 
 // TODO: is this a good style
-final routeBetweenPoisProvider = Provider<MapRoute?>((ref) {
+final routeProvider = Provider<MapRoute?>((ref) {
   final originPoi = ref.watch(originPoiProvider);
   final destinationPoi = ref.watch(destinationPoiProvider);
   if (originPoi == null || destinationPoi == null) return null;

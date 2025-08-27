@@ -10,7 +10,7 @@ class RoutingSummaryWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.watch(routeBetweenPoisProvider);
+    ref.watch(routeProvider);
     return const Placeholder();
   }
 }
