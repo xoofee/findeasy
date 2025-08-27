@@ -61,23 +61,27 @@ Future<void> refreshDevicePosition(WidgetRef ref) async {
 }
 
 // Will be refreshed when currentPositionProvider is refreshed
-final nearbyPlacesProvider = FutureProvider<List<Place>?>((ref) async {
+final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
   final center = await ref.watch(currentDevicePositionProvider.future);   // valueOrNull is anti-pattern
   final repo = ref.watch(placesRepositoryProvider);
   return await repo.getPlaces(center);
 });
 
+// The following is a simple but will cause rebuild of placeMapProvider even if a same place is selected
+// final currentPlaceProvider = Provider<Place?>((ref) {
+//   final places = ref.watch(nearbyPlacesProvider);
+//   return places.valueOrNull?.firstOrNull;
+// });
 @riverpod
 class CurrentPlace extends _$CurrentPlace {
   CurrentPlace() : super();
   
   @override
   Place? build() {
-    ref.listen<AsyncValue<List<Place>?>>(nearbyPlacesProvider, (prev, next) {
+    ref.listen<AsyncValue<List<Place>>>(nearbyPlacesProvider, (prev, next) {
       next.whenData((places) {
         // without compare state, the assignment will cause placeMapProvider
         // to rebuild without select magic
-        if (places == null) return;   // error in get places
         if (places.isEmpty) state = null; // get empty list: no place matched
         if (state != places.first) state = places.first;
       });
