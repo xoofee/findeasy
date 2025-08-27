@@ -15,7 +15,7 @@ import 'package:findeasy/features/map/data/datasources/place_map_asset_data_sour
 import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-part 'navigation_providers.g.dart';
+part 'map_providers.g.dart';
 
 // ======= Dependency Providers =======
 
