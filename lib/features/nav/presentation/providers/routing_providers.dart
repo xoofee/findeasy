@@ -71,6 +71,13 @@ final poiLandMarksProvider = Provider<List<Poi>>((ref) {
   return poiLandMarks;
 });
 
+final routeKeyPointsProvider = Provider<List<latlong2.LatLng>>((ref) {
+  final route = ref.watch(routeProvider);
+  final currentLevel = ref.watch(currentLevelProvider);
+  if (route == null) return [];
+  return route.instructions.where((instruction) => instruction.level == currentLevel).map((instruction) => instruction.geometry.first).toList();
+});
+
 // /// Provider for the MapRepository
 // final mapRepositoryProvider = Provider<MapRepository>((ref) {
 //   final dataSource = ref.read(assetDataSourceProvider);

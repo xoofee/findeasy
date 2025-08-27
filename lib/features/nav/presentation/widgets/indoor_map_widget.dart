@@ -10,6 +10,7 @@ import 'package:findeasy/features/nav/presentation/providers/car_parking_provide
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
 import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
+import 'package:latlong2/latlong.dart' as latlong2;
 // import 'package:findeasy/features/nav/presentation/widgets/map_controls_widget.dart';
 
 /// Main indoor map widget using flutter_map
@@ -109,6 +110,11 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         // _buildCarParkingMarker(placeMap, poiManager, currentLevel),
         // ],
 
+        Consumer( builder: (context, ref, child) {
+          final routeKeyPoints = ref.watch(routeKeyPointsProvider);
+          return MarkerLayer(markers: routeKeyPoints.toPointMarkers());
+        }),
+
         if (placeMatched && placeMap != null) ...[
           Consumer( builder: (context, ref, child) {
 
@@ -156,14 +162,12 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
             final currentLevel = ref.watch(currentLevelProvider);
             final highlightOriginLevel = currentLevel == route.originLevel;
 
-            final originColor = highlightOriginLevel ? Colors.orange : Colors.orange.withOpacity(0.5);
-            final destinationColor = highlightOriginLevel ? Colors.orange.withOpacity(0.5) : Colors.orange;
-            final originStrokeWidth = highlightOriginLevel ? 4.0 : 3.0;
-            final destinationStrokeWidth = highlightOriginLevel ? 3.0 : 4.0;
+            final highlightGeometry = highlightOriginLevel ? route.geometryAtOriginLevel : route.geometryAtDestinationLevel;
+            final nonHighlightGeometry = highlightOriginLevel ? route.geometryAtDestinationLevel : route.geometryAtOriginLevel;
                         
             return PolylineLayer(polylines: [
-              Polyline(points: route.geometryAtOriginLevel!.toLatLngList(), color: originColor, strokeWidth: originStrokeWidth),
-              Polyline(points: route.geometryAtDestinationLevel!.toLatLngList(), color: destinationColor, strokeWidth: destinationStrokeWidth),
+              Polyline(points: highlightGeometry!.toLatLngList(), color: Colors.orange, strokeWidth: 4),
+              Polyline(points: nonHighlightGeometry!.toLatLngList(), color:  Colors.orange.withOpacity(0.6), strokeWidth: 3, pattern: StrokePattern.dashed(segments: [4, 6])),
             ]);
           }
 
@@ -327,6 +331,25 @@ extension on List<Poi> {
       }
     }).toList();
   }  
+}
+
+extension on List<latlong2.LatLng> {
+  List<Marker> toPointMarkers({double size = 12}) {
+    // circle marker
+    return map(
+      (point) => Marker(
+        point: point,
+        width: size,   // control dot size
+        height: size,
+        child: const DecoratedBox(
+          decoration: BoxDecoration(
+            color: Colors.orange,
+            shape: BoxShape.circle,
+          ),
+        ),
+      ),
+    ).toList();
+  }
 }
 
 // void _buildPoiMarkers(List<Poi> pois) {
