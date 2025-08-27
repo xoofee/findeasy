@@ -1,5 +1,6 @@
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/routing_button.dart';
+import 'package:findeasy/features/nav/presentation/widgets/routing_summary_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_bar_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/routing_input_widget.dart';
 import 'package:flutter/material.dart';
@@ -103,7 +104,7 @@ class NavigationPage extends ConsumerWidget {
 
 
           Positioned(
-            bottom: MediaQuery.of(context).padding.bottom + 16,
+            bottom: MediaQuery.of(context).padding.bottom + (navigationMode == AppNavigationMode.routing ? 80 :  16),
             left: 8,
             child: Column(
               children: [
@@ -148,6 +149,15 @@ class NavigationPage extends ConsumerWidget {
           //       child: CircularProgressIndicator(),
           //     ),
           //   ),
+
+          if (navigationMode == AppNavigationMode.routing)
+
+            const Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: RoutingSummaryWidget(),
+            ),
         ],
       ),
     );
