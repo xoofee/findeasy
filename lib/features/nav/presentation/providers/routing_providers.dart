@@ -13,27 +13,27 @@ final easyRouteProvider = Provider<EasyRoute?>((ref) {
   final easyRoute = EasyRoute();
   try {
     easyRoute.init(mapResult);
+    return easyRoute;
   } catch (e) {
-    // TODO: log error
-    print('Failed to load map: $e');
+    // Log initialization failures
+    if (e is EasyRouteException) {
+      print('Failed to initialize routing: ${e.message}');
+    } else {
+      print('Unexpected error during routing initialization: $e');
+    }
     return null;
   }
-
-  // TODO unnecessary check
-  if (!easyRoute.graphLoaded) {
-    // TODO: log error
-    print('Failed to load graph');
-    return null;
-  }
-
-  return easyRoute;
-
 });
 
 final originPoiProvider = StateProvider<Poi?>((ref) => null);
 final destinationPoiProvider = StateProvider<Poi?>((ref) => null);
 
-// TODO: is this a good style
+/// Provider that computes the route between origin and destination POIs.
+/// Returns null when:
+/// - Origin or destination POI is not selected
+/// - EasyRoute is not initialized
+/// - No valid route exists between the POIs
+/// - An unexpected error occurs during routing
 final routeProvider = Provider<MapRoute?>((ref) {
   final originPoi = ref.watch(originPoiProvider);
   final destinationPoi = ref.watch(destinationPoiProvider);
@@ -45,9 +45,20 @@ final routeProvider = Provider<MapRoute?>((ref) {
   try {
     return easyRoute.findPathBetweenPois(originPoi: originPoi, destinationPoi: destinationPoi);
   } catch (e) {
-    // TODO: log error
-    print('Failed to find path between POIs: $e');
-    return null;
+    // Distinguish between expected routing failures and unexpected errors
+    if (e is EasyRouteException) {
+      // Expected routing failures (e.g., no path found, POIs too far apart)
+      // Log as info/warning, not error
+      print('Routing failed: ${e.message}');
+      return null;
+    } else {
+      // Unexpected errors (e.g., system failures, bugs)
+      // Log as error and potentially re-throw for debugging
+      print('Unexpected error during routing: $e');
+      // TODO: Add proper error logging service
+      // TODO: Consider re-throwing unexpected errors in debug mode
+      return null;
+    }
   }
 });
 
