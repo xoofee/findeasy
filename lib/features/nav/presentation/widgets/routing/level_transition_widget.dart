@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:findeasy/features/nav/presentation/providers/routing_providers.dart';
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 
 /// Widget that shows level transition information when routing between POIs
 /// Shows one level if start and end are on same floor, or two levels with arrow if different floors

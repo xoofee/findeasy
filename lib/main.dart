@@ -11,7 +11,7 @@ import 'package:findeasy/app.dart';
 import 'package:findeasy/core/providers/storage_providers.dart';
 import 'package:findeasy/features/nav/domain/entities/car_parking_info.dart';
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

@@ -1,4 +1,4 @@
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

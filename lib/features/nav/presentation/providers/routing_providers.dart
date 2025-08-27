@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:easyroute/easyroute.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 
 // ======= Route Planning Providers =======
 

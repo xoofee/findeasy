@@ -1,4 +1,4 @@
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/system_menu_button.dart';
 import 'package:findeasy/features/nav/presentation/widgets/poi_search_input.dart';
 import 'package:findeasy/features/nav/presentation/widgets/search_results_widget.dart';

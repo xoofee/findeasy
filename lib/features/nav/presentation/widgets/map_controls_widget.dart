@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 import 'package:findeasy/features/nav/presentation/providers/map_animation_provider.dart';
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 
 /// Widget that provides convenient map control buttons
 /// This demonstrates how to use the map animation service

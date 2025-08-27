@@ -9,7 +9,7 @@ import 'package:findeasy/features/nav/presentation/widgets/indoor_map_widget.dar
 import 'package:findeasy/features/nav/presentation/widgets/level_selection_widget.dart';
 import 'package:findeasy/features/nav/presentation/widgets/routing/level_transition_widget.dart';
 
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 import 'package:easyroute/easyroute.dart';
 
 /// Main navigation map page that displays the indoor map with POIs and routes

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:easyroute/easyroute.dart';
-import 'package:findeasy/features/nav/presentation/providers/navigation_providers.dart';
+import 'package:findeasy/features/nav/presentation/providers/map_providers.dart';
 import 'package:findeasy/features/nav/presentation/providers/car_parking_providers.dart';
 import 'package:findeasy/features/nav/presentation/widgets/car_parking_dialog.dart';
 import 'package:flutter_map_animations/flutter_map_animations.dart';
@@ -299,7 +299,6 @@ extension on List<Poi> {
       })
       .toList();
   }
-
 
   List<Marker> toLandMarkTexts() {
 
