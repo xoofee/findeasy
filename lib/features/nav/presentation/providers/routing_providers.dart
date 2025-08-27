@@ -67,7 +67,7 @@ final poiLandMarksProvider = Provider<List<Poi>>((ref) {
   if (route == null) return [];
   final currentLevel = ref.watch(currentLevelProvider);
 
-  final poiLandMarks = route.instructions.map((instruction) => instruction.poiLandmarks).where((poi) => poi != null && poi.level == currentLevel).cast<Poi>().toList();
+  final poiLandMarks = route.instructions.map((instruction) => instruction.poiLandmark).where((poi) => poi != null && poi.level == currentLevel).cast<Poi>().toList();
   return poiLandMarks;
 });
 
