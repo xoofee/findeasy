@@ -12,8 +12,7 @@ v0.2: speech
 https://github.com/amias-samir/GraphHooperMapRouteNavigation
 
 ## TODO
-- 切换楼层时路线服务未更新（暂时忽略，待新dart版Ok再说）
-- start end 改為origin destination
+- 
 
 # deploy
 

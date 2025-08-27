@@ -1,4 +1,7 @@
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart' as latlong2;
 
 /// Application Constants for the FindEasy application
@@ -85,4 +88,16 @@ class AppConstants {
   static const bool enableOfflineMode = true;
   static const bool enableAnalytics = true;
   static const bool enableCrashReporting = true;
+
+  // color and style
+  static const landmarkTextStyle = TextStyle(
+      fontSize: 16.0,
+      fontWeight: FontWeight.bold,
+      color: Colors.red,
+      shadows: [
+        Shadow(offset: Offset(-1, -1), color: Colors.white),
+        Shadow(offset: Offset(1, -1), color: Colors.white),
+        Shadow(offset: Offset(-1, 1), color: Colors.white),
+        Shadow(offset: Offset(1, 1), color: Colors.white),
+      ]);
 }

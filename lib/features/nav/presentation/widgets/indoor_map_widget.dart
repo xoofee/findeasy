@@ -98,22 +98,7 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
         TileLayer(
           urlTemplate: 'https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey=0e224c51130f44f59a53672538a958f6',
           subdomains: const ['a', 'b', 'c'],),
-        // POI Markers - only show at high zoom levels
-        // ZoomDependentMarkers(
-        //   markers: _parkingSpaceNameMarkers,
-        // ),
-        if (placeMatched && placeMap != null) 
-                Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
-                  final mapZoom = ref.watch(mapZoomProvider);
-                  final currentLevel = ref.watch(currentLevelProvider);
 
-                  final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
-
-                  _parkingSpaceNameMarkers = parkingSpaces.toTextMarkers();
-                  
-                  if (mapZoom > 20.0) return MarkerLayer(markers: _parkingSpaceNameMarkers, rotate: true);
-                  return const SizedBox.shrink();
-                }),
 
         // POI Polygons: parking spaces
 
@@ -128,13 +113,14 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
           Consumer( builder: (context, ref, child) {
 
             final currentLevel = ref.watch(currentLevelProvider);
+            final poiLandMarks = ref.watch(poiLandMarksProvider);
 
             // Build POI polygons (for way-based POIs)
             if (currentLevel != null && placeMap.levelMaps.containsKey(currentLevel)) {
               _poiPolygons.clear();
               // _parkingSpaceNameMarkers.clear();
               final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
-              _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue));
+              _poiPolygons.addAll(parkingSpaces.toPolygons(Colors.blue, Colors.blue, poiLandMarks: poiLandMarks));
 
               // WidgetsBinding.instance.addPostFrameCallback((_) {
               //   _animatedMapController.animateTo(
@@ -183,6 +169,29 @@ class _IndoorMapWidgetState extends ConsumerState<IndoorMapWidget> with TickerPr
 
           return PolylineLayer(polylines: [Polyline(points: route.geometry.toLatLngList(), color: Colors.orange, strokeWidth: 4)]);
         }),
+
+        // POI Markers - only show at high zoom levels
+        // ZoomDependentMarkers(
+        //   markers: _parkingSpaceNameMarkers,
+        // ),
+        if (placeMatched && placeMap != null) 
+          Consumer( builder: (context, ref, child) {  // avoid writing a separate ConsumerWidget for this
+            final mapZoom = ref.watch(mapZoomProvider);
+            final currentLevel = ref.watch(currentLevelProvider);
+
+            final parkingSpaces = placeMap.levelMaps[currentLevel]!.parkingSpaces;
+
+            final poiLandMarks = ref.watch(poiLandMarksProvider);
+
+            
+            if (mapZoom > 20.0) {
+              _parkingSpaceNameMarkers = parkingSpaces.toTextMarkers(poiLandMarks);
+              return MarkerLayer(markers: _parkingSpaceNameMarkers, rotate: true);
+            } else {
+              return MarkerLayer(markers: poiLandMarks.toLandMarkTexts(), rotate: true);
+
+            }
+          }),        
       ],
     );
 
@@ -266,24 +275,58 @@ Widget _buildCarParkingMarker(PlaceMap? placeMap, PoiManager? poiManager, Level?
 
 
 extension on List<Poi> {
-  List<Polygon> toPolygons(Color color, Color borderColor, {double borderStrokeWidth = 2}) {
+  List<Polygon> toPolygons(Color color, Color borderColor, {double borderStrokeWidth = 1.5, required List<Poi> poiLandMarks}) {
     return where((poi) => poi.geometry != null)
-      .map((poi) => Polygon(
+      .map((poi) {
+        if (poiLandMarks.contains(poi)) {
+          return Polygon(
             points: poi.geometry!,
-            color: color.withOpacity(0.3),
+            color: Colors.red.withOpacity(0.5),
+            borderColor: Colors.red,
+            borderStrokeWidth: 2.0,
+            // make it dashed
+            // pattern: StrokePattern.dashed(segments: [2, 4]),
+          );
+        } else {
+        return Polygon(
+            points: poi.geometry!,
+            // color: color.withOpacity(0.3),
+            color: Colors.transparent,
             borderColor: borderColor,
             borderStrokeWidth: borderStrokeWidth,
-          ))
+          );
+        }
+      })
       .toList();
   }
 
-  List<Marker> toTextMarkers() {
+
+  List<Marker> toLandMarkTexts() {
+
     return map((poi) => Marker(
-            point: poi.center,
-            child: Text(poi.name, textAlign: TextAlign.center),
-            width: 60,
-          ))
-      .toList();
+          point: poi.center,
+          child: Text(poi.name, textAlign: TextAlign.center, style: AppConstants.landmarkTextStyle),
+          width: 60,
+        ))
+    .toList();
+  }    
+
+  List<Marker> toTextMarkers(List<Poi> poiLandMarks) {
+    return map((poi) {
+      if (poiLandMarks.contains(poi)) {
+        return Marker(
+          point: poi.center,
+          child: Text(poi.name, textAlign: TextAlign.center, style: AppConstants.landmarkTextStyle),
+          width: 60,
+        );
+      } else {
+        return Marker(
+          point: poi.center,
+          child: Text(poi.name, textAlign: TextAlign.center),
+          width: 60,
+        );
+      }
+    }).toList();
   }  
 }
 
