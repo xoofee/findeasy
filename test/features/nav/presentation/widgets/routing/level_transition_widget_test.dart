@@ -54,6 +54,7 @@ void main() {
         geometry: [],
         distance: 100.0,
         instructions: [],
+        indoorInstructions: [],
         originPoi: startPoi,
         destinationPoi: startPoi, // Same POI, same level
         originLevel: level1,
@@ -89,6 +90,7 @@ void main() {
         geometry: [],
         distance: 100.0,
         instructions: [],
+        indoorInstructions: [],
         originPoi: startPoi,
         destinationPoi: endPoi,
         originLevel: level1,
