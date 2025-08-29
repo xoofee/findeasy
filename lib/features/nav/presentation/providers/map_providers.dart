@@ -72,30 +72,61 @@ Future<void> refreshDevicePosition(WidgetRef ref) async {
 //   final places = ref.watch(nearbyPlacesProvider);
 //   return places.valueOrNull?.firstOrNull;
 // });
-// @riverpod
-// class CurrentPlace extends _$CurrentPlace {
-//   CurrentPlace() : super();
-  
-//   @override
-//   Place? build() {
-//     ref.listen<AsyncValue<List<Place>>>(nearbyPlacesProvider, (prev, next) {
-//       next.whenData((places) {
-//         // without compare state, the assignment will cause placeMapProvider
-//         // to rebuild without select magic
-//         if (places.isEmpty) state = null; // get empty list: no place matched
-//         if (state != places.first) state = places.first;
-//       });
-//     });
 
-//     return null;
-//   }
-// }
 
-final currentPlaceProvider = FutureProvider<Place>((ref) async {
+final nearestPlaceProvider = FutureProvider<Place>((ref) async {
   final center = await ref.watch(currentDevicePositionProvider.future);
   final repo = ref.watch(placesRepositoryProvider);
   return await repo.getNearestPlace(center);
 });
+
+@riverpod
+class CurrentPlace extends _$CurrentPlace {
+  CurrentPlace() : super();
+  
+  @override
+  AsyncValue<Place> build() {  // ✅ No null, just AsyncValue<Place>
+    // Listen to automatic detection
+    ref.listen<AsyncValue<Place>>(
+      nearestPlaceProvider,
+      (prev, next) {
+        next.when(
+          data: (place) {
+            // Only auto-set if no place is currently selected
+            if (state.valueOrNull == null) {
+              state = AsyncValue.data(place);
+            }
+          },
+          loading: () {
+            // Don't override manual selection with loading state
+            if (state.valueOrNull == null) {
+              state = const AsyncValue.loading();
+            }
+          },
+          error: (error, stack) {
+            // Don't override manual selection with error state
+            if (state.valueOrNull == null) {
+              state = AsyncValue.error(error, stack);
+            }
+          },
+        );
+      },
+    );
+    return const AsyncValue.loading(); // Initial state
+  }
+
+  void setPlace(Place place) {
+    state = AsyncValue.data(place);  // ✅ Set as data
+  }
+
+  void clearPlace() {
+    state = const AsyncValue.loading();  // ✅ Clear as loading instead of null
+  }
+
+  Future<void> refreshAutoDetection() async {
+    ref.invalidate(nearestPlaceProvider);
+  }  
+}
 
 // final currentPlaceProvider =
 //     StateNotifierProvider<CurrentPlaceController, Place?>(

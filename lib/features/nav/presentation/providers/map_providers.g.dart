@@ -6,12 +6,12 @@ part of 'map_providers.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$currentPlaceHash() => r'69a43e8b20ab87d43731d41e968e1d9d08907c69';
+String _$currentPlaceHash() => r'4ea81718451a2e57fa94bb2d0431386c83d5bcaf';
 
 /// See also [CurrentPlace].
 @ProviderFor(CurrentPlace)
 final currentPlaceProvider =
-    AutoDisposeNotifierProvider<CurrentPlace, Place?>.internal(
+    AutoDisposeNotifierProvider<CurrentPlace, AsyncValue<Place>>.internal(
   CurrentPlace.new,
   name: r'currentPlaceProvider',
   debugGetCreateSourceHash:
@@ -20,7 +20,7 @@ final currentPlaceProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$CurrentPlace = AutoDisposeNotifier<Place?>;
+typedef _$CurrentPlace = AutoDisposeNotifier<AsyncValue<Place>>;
 String _$currentLevelHash() => r'06ebe9866e1b4e8111d91d47922eeb82dd7cc225';
 
 /// See also [CurrentLevel].
