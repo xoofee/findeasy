@@ -9,6 +9,7 @@ https://github.com/organicmaps/organicmaps/blob/ba879764383d7cfb04017a29e4228e7e
 
 
 import 'package:easyroute/easyroute.dart';
+import 'package:findeasy/features/nav/domain/services/map_animation_service.dart';
 
 
 // class RealtimeInstruction {
@@ -28,10 +29,11 @@ import 'package:easyroute/easyroute.dart';
 class NavigationService {
   MapRoute? _mapRoute;
   int currentInstructionIndex = 0;
+  final MapAnimationService mapAnimationService;
 
   IndoorInstruction get currentInstruction => _mapRoute!.indoorInstructions[currentInstructionIndex];
 
-  NavigationService();
+  NavigationService(this.mapAnimationService);
 
   String startNavigation(MapRoute mapRoute) {
     _mapRoute = mapRoute;

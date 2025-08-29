@@ -67,7 +67,7 @@ final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
   return await repo.getPlaces(center);
 });
 
-// The following is a simple but will cause rebuild of placeMapProvider even if a same place is selected
+// The following is simple but will cause rebuild of placeMapProvider even if a same place is selected
 // final currentPlaceProvider = Provider<Place?>((ref) {
 //   final places = ref.watch(nearbyPlacesProvider);
 //   return places.valueOrNull?.firstOrNull;
