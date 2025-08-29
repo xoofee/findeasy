@@ -7,7 +7,7 @@ part 'navigation_state.freezed.dart';
 class NavigationState with _$NavigationState {
   const factory NavigationState({
     required String voiceText,
-    required double distance,
+    required double distanceToNextTurn,
     required bool deviated,
     required IndoorInstruction currentInstruction,
   }) = _NavigationState;

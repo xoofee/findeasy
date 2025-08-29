@@ -4,23 +4,31 @@ import 'package:findeasy/features/nav/domain/services/navigation_service.dart';
 import 'package:findeasy/features/nav/presentation/providers/routing_providers.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+part 'navigation_providers.g.dart';
 
-// final navigationServiceProvider = Provider<NavigationService>((ref) {
-//   final mapRoute = ref.watch(routeProvider);
-//   if (mapRoute == null) {
-//   return NavigationService(mapRoute: mapRoute);
-// });
+final navigationServiceProvider = Provider<NavigationService>((ref) => NavigationService());
 
-// @riverpod
-// class NavigationProvider extends _$NavigationProvider {
-//   NavigationProvider() : super();
+@riverpod
+class NavigationProvider extends _$NavigationProvider {
 
-//   @override
-//   NavigationState build() {
-//     return NavigationState();
-//   }
+  late NavigationService _navigationService;
 
-//   void updateCurrentPoi(Poi poi) {
+  NavigationProvider() : super();
 
-//   }
-// }
+  @override
+  NavigationState? build() {
+    _navigationService = ref.read(navigationServiceProvider);
+    
+    final mapRoute = ref.watch(routeProvider);
+    if (mapRoute == null) return null;
+    return null;
+  }
+
+  void startNavigation(MapRoute mapRoute) {
+    _navigationService.startNavigation(mapRoute);
+  }
+
+  void updateCurrentPoi(Poi poi) {
+
+  }
+}

@@ -17,7 +17,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$NavigationState {
   String get voiceText => throw _privateConstructorUsedError;
-  double get distance => throw _privateConstructorUsedError;
+  double get distanceToNextTurn => throw _privateConstructorUsedError;
   bool get deviated => throw _privateConstructorUsedError;
   IndoorInstruction get currentInstruction =>
       throw _privateConstructorUsedError;
@@ -37,7 +37,7 @@ abstract class $NavigationStateCopyWith<$Res> {
   @useResult
   $Res call(
       {String voiceText,
-      double distance,
+      double distanceToNextTurn,
       bool deviated,
       IndoorInstruction currentInstruction});
 }
@@ -58,7 +58,7 @@ class _$NavigationStateCopyWithImpl<$Res, $Val extends NavigationState>
   @override
   $Res call({
     Object? voiceText = null,
-    Object? distance = null,
+    Object? distanceToNextTurn = null,
     Object? deviated = null,
     Object? currentInstruction = null,
   }) {
@@ -67,9 +67,9 @@ class _$NavigationStateCopyWithImpl<$Res, $Val extends NavigationState>
           ? _value.voiceText
           : voiceText // ignore: cast_nullable_to_non_nullable
               as String,
-      distance: null == distance
-          ? _value.distance
-          : distance // ignore: cast_nullable_to_non_nullable
+      distanceToNextTurn: null == distanceToNextTurn
+          ? _value.distanceToNextTurn
+          : distanceToNextTurn // ignore: cast_nullable_to_non_nullable
               as double,
       deviated: null == deviated
           ? _value.deviated
@@ -93,7 +93,7 @@ abstract class _$$NavigationStateImplCopyWith<$Res>
   @useResult
   $Res call(
       {String voiceText,
-      double distance,
+      double distanceToNextTurn,
       bool deviated,
       IndoorInstruction currentInstruction});
 }
@@ -112,7 +112,7 @@ class __$$NavigationStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? voiceText = null,
-    Object? distance = null,
+    Object? distanceToNextTurn = null,
     Object? deviated = null,
     Object? currentInstruction = null,
   }) {
@@ -121,9 +121,9 @@ class __$$NavigationStateImplCopyWithImpl<$Res>
           ? _value.voiceText
           : voiceText // ignore: cast_nullable_to_non_nullable
               as String,
-      distance: null == distance
-          ? _value.distance
-          : distance // ignore: cast_nullable_to_non_nullable
+      distanceToNextTurn: null == distanceToNextTurn
+          ? _value.distanceToNextTurn
+          : distanceToNextTurn // ignore: cast_nullable_to_non_nullable
               as double,
       deviated: null == deviated
           ? _value.deviated
@@ -142,14 +142,14 @@ class __$$NavigationStateImplCopyWithImpl<$Res>
 class _$NavigationStateImpl implements _NavigationState {
   const _$NavigationStateImpl(
       {required this.voiceText,
-      required this.distance,
+      required this.distanceToNextTurn,
       required this.deviated,
       required this.currentInstruction});
 
   @override
   final String voiceText;
   @override
-  final double distance;
+  final double distanceToNextTurn;
   @override
   final bool deviated;
   @override
@@ -157,7 +157,7 @@ class _$NavigationStateImpl implements _NavigationState {
 
   @override
   String toString() {
-    return 'NavigationState(voiceText: $voiceText, distance: $distance, deviated: $deviated, currentInstruction: $currentInstruction)';
+    return 'NavigationState(voiceText: $voiceText, distanceToNextTurn: $distanceToNextTurn, deviated: $deviated, currentInstruction: $currentInstruction)';
   }
 
   @override
@@ -167,8 +167,8 @@ class _$NavigationStateImpl implements _NavigationState {
             other is _$NavigationStateImpl &&
             (identical(other.voiceText, voiceText) ||
                 other.voiceText == voiceText) &&
-            (identical(other.distance, distance) ||
-                other.distance == distance) &&
+            (identical(other.distanceToNextTurn, distanceToNextTurn) ||
+                other.distanceToNextTurn == distanceToNextTurn) &&
             (identical(other.deviated, deviated) ||
                 other.deviated == deviated) &&
             (identical(other.currentInstruction, currentInstruction) ||
@@ -177,7 +177,7 @@ class _$NavigationStateImpl implements _NavigationState {
 
   @override
   int get hashCode => Object.hash(
-      runtimeType, voiceText, distance, deviated, currentInstruction);
+      runtimeType, voiceText, distanceToNextTurn, deviated, currentInstruction);
 
   /// Create a copy of NavigationState
   /// with the given fields replaced by the non-null parameter values.
@@ -192,7 +192,7 @@ class _$NavigationStateImpl implements _NavigationState {
 abstract class _NavigationState implements NavigationState {
   const factory _NavigationState(
           {required final String voiceText,
-          required final double distance,
+          required final double distanceToNextTurn,
           required final bool deviated,
           required final IndoorInstruction currentInstruction}) =
       _$NavigationStateImpl;
@@ -200,7 +200,7 @@ abstract class _NavigationState implements NavigationState {
   @override
   String get voiceText;
   @override
-  double get distance;
+  double get distanceToNextTurn;
   @override
   bool get deviated;
   @override
