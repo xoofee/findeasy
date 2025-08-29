@@ -13,6 +13,8 @@ import 'package:findeasy/features/nav/presentation/providers/map_animation_provi
 import 'package:latlong2/latlong.dart' as latlong2;
 // import 'package:findeasy/features/nav/presentation/widgets/map_controls_widget.dart';
 
+final mapResult = ref.watch(placeMapProvider.select((async) => async.value!));
+
 /// Main indoor map widget using flutter_map
 class IndoorMapWidget extends ConsumerStatefulWidget {
   const IndoorMapWidget({super.key});

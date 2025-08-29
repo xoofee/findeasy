@@ -19,3 +19,14 @@ class DevicePositionPermissionException extends DevicePositionException {
   @override
   String toString() => 'DevicePositionPermissionException: $message';
 }
+
+class NoNearbyPlacesException implements Exception {
+  final String message;
+  final double radius;
+
+  NoNearbyPlacesException(this.message, this.radius);
+  
+  @override
+  String toString() => 'NoNearbyPlacesException: $message, radius: $radius';
+
+}
