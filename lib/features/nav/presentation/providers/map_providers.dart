@@ -56,10 +56,6 @@ final currentDevicePositionProvider = FutureProvider<latlong2.LatLng>((ref) asyn
   return await repo.getCurrentPosition();
 });
 
-Future<void> refreshDevicePosition(WidgetRef ref) async {
-  ref.invalidate(currentDevicePositionProvider);
-}
-
 // Will be refreshed when currentPositionProvider is refreshed
 // final nearbyPlacesProvider = FutureProvider<List<Place>>((ref) async {
 //   final center = await ref.watch(currentDevicePositionProvider.future);   // valueOrNull is anti-pattern
@@ -93,19 +89,19 @@ class CurrentPlace extends _$CurrentPlace {
         next.when(
           data: (place) {
             // Only auto-set if no place is currently selected
-            if (state.valueOrNull == null) {
+            // if (state.value == place) { if there is multiple refresh, add this
               state = AsyncValue.data(place);
-            }
+            // }
           },
-          loading: () {
+          loading: () { // ui will wait or do nothing if loading
             // Don't override manual selection with loading state
-            if (state.valueOrNull == null) {
+            if (state.valueOrNull == null) {  // if not check, the previous (maybe user selected) place will be lost
               state = const AsyncValue.loading();
             }
           },
-          error: (error, stack) {
+          error: (error, stack) {   // the ui will pop out places (manual) selection list if error occurs
             // Don't override manual selection with error state
-            if (state.valueOrNull == null) {
+            if (state.valueOrNull == null) {  // same as above
               state = AsyncValue.error(error, stack);
             }
           },
@@ -124,7 +120,7 @@ class CurrentPlace extends _$CurrentPlace {
   }
 
   Future<void> refreshAutoDetection() async {
-    ref.invalidate(nearestPlaceProvider);
+    ref.invalidate(currentDevicePositionProvider);
   }  
 }
 
@@ -139,36 +135,31 @@ class CurrentPlace extends _$CurrentPlace {
 //   return places.first;
 // });
 
-final placeMatchedProvider = StateProvider<bool>((ref) {
-  final place = ref.watch(currentPlaceProvider);
-  return place != null;
-});
-
-// currentPlaceProvider may be updated by gps or manual selection
-final placeMapProvider = FutureProvider<MapResult?>((ref) async {
-  final place = ref.watch(currentPlaceProvider);
+/// currentPlaceProvider may be updated by gps or manual selection
+/// async-aware
+final placeMapProvider = FutureProvider<MapResult>((ref) async {
+  final place = await ref.watch(currentPlaceProvider.future);
   // final place = ref.watch(currentPlaceProvider.select((p) => p));
   // final placeId = ref.watch(currentPlaceProvider.select((p) => p?.id));
 
-  if (place == null) return null;
-
   final repo = ref.watch(placeMapRepositoryProvider);
-  return await repo.getMap(place.id);
+  return await repo.getMap(place.id);   // will throw an exception if the levels are empty
+});
 
+/// data-only
+final placeMapDataProvider = Provider<MapResult>((ref) {
+  final asyncMap = ref.watch(placeMapProvider);
+  return asyncMap.requireValue; // helper from Riverpod
 });
 
 // Extract levels from the fetched placeMap
 final availableLevelsProvider = Provider<List<Level>>((ref) {
-  final mapResult = ref.watch(placeMapProvider).valueOrNull;    // TODO: how to do with error?
-  if (mapResult == null) return [];
-
+  final mapResult = ref.watch(placeMapDataProvider);
   return mapResult.placeMap.levels;
 });
 
-final poiManagerProvider = Provider<PoiManager?>((ref) {
-  final mapResult = ref.watch(placeMapProvider).valueOrNull;    // TODO: how to do with error?
-  if (mapResult == null) return null;
-
+final poiManagerProvider = Provider<PoiManager>((ref) {
+  final mapResult = ref.watch(placeMapDataProvider);
   return mapResult.poiManager;
 });
 
@@ -192,17 +183,9 @@ class CurrentLevel extends _$CurrentLevel {
   CurrentLevel() : super();
 
   @override
-  Level? build() {
+  Level build() {
     // Listen to availableLevelsProvider
-    ref.listen<List<Level>>(
-      availableLevelsProvider,
-      (prev, next) {
-        if (next.isNotEmpty) {
-          state = next.getDefaultLevel();
-        }
-      },
-    );
-    return null; // Initial state
+    return ref.watch(availableLevelsProvider).getDefaultLevel();
   }
 
   void setLevel(Level? level) {

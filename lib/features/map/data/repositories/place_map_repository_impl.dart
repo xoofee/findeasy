@@ -13,6 +13,7 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
   PlaceMapRepositoryImpl(this.placeMapDataSource);
 
   /// Get cached PlaceMap if available, otherwise download and parse
+  /// The levels in mapResult should not be empty, otherwise throw an exception
   @override
   Future<MapResult> getMap(int placeId) async {
     // Check if we have a cached PlaceMap
@@ -21,6 +22,10 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
       try {
             // Parse the cached file
         final mapResult = await loadMapFromOsmFile(cachedPath);
+
+        if (mapResult.placeMap.levels.isEmpty) {
+          throw Exception('No levels found in the cached map');
+        }
         
         return mapResult;
       } catch (e) {
@@ -31,6 +36,11 @@ class PlaceMapRepositoryImpl implements PlaceMapRepository {
     
     // Download and parse if not cached or parsing failed
     final mapResult = await _downloadAndParseMap(placeId);
+
+    if (mapResult.placeMap.levels.isEmpty) {
+      throw Exception('No levels found in the downloaded map');
+    }
+
     return mapResult;
   }
 
